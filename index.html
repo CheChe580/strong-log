@@ -6,7 +6,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="theme-color" content="#0A0A0A" />
-  <title>變強全能日誌｜黑底黃線純淨版</title>
+  <title>變強全能日誌｜黑底黃線版</title>
   <style>
     :root {
       --bg: #0A0A0A;
@@ -92,7 +92,7 @@
 
     .date-controls { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 
-    input[type="date"], input[type="text"], input[type="number"], select, textarea {
+    input[type="date"], input[type="text"], input[type="number"], input[type="password"], select, textarea {
       background: var(--surface-2); color: var(--text); border: 1px solid var(--border);
       border-radius: 10px; padding: 8px 10px; font-size: 0.85rem; font-family: inherit;
     }
@@ -183,6 +183,7 @@
       border: 1px solid var(--border); background: var(--surface); color: var(--text);
       border-radius: 8px; padding: 5px 8px; font-size: 0.74rem; font-weight: 700; cursor: pointer;
     }
+    .mini-btn.danger { background: var(--rose-soft); border-color: var(--rose); color: var(--rose); }
     .mini-btn.timer-btn { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
     .mini-btn.timer-btn.running { background: var(--rose); border-color: var(--rose); color: #FFFFFF; }
 
@@ -222,6 +223,15 @@
       background: var(--surface-2); color: var(--text); border: 1px solid var(--border);
       border-radius: 10px; padding: 8px 12px; font-size: 0.82rem; font-weight: 700;
       cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+    }
+
+    .img-preview-bar {
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      background: var(--surface-2); border: 1px solid var(--border);
+      border-radius: 10px; padding: 8px 10px; margin-top: 8px;
+    }
+    .img-preview-thumb {
+      width: 48px; height: 48px; border-radius: 8px; object-fit: cover; border: 1px solid var(--border);
     }
 
     .rings-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 9px; }
@@ -317,7 +327,7 @@
             <option value="sun">週日｜復燃練球</option>
           </select>
         </div>
-        <span id="syncStatusBadge" class="sync-badge">純淨離線版・基準已載入</span>
+        <span id="syncStatusBadge" class="sync-badge">本機＋歷史基準已載入</span>
       </div>
     </header>
 
@@ -327,16 +337,16 @@
         <span class="tab-sub">熱身・主課・收操</span>
       </button>
       <button id="tab-nutrition" class="tab-btn" onclick="switchTab('nutrition')">
-        <span>🥗 飲食額度</span>
-        <span class="tab-sub">快選・快貼・圓環</span>
+        <span>🥗 飲食 AI</span>
+        <span class="tab-sub">AI分析・快選・圓環</span>
       </button>
       <button id="tab-progress" class="tab-btn" onclick="switchTab('progress')">
         <span>📈 體態進度</span>
         <span class="tab-sub">12%腹肌・歷史回顧</span>
       </button>
       <button id="tab-settings" class="tab-btn" onclick="switchTab('settings')">
-        <span>☁️ 雲端備份</span>
-        <span class="tab-sub">試算表・存檔碼</span>
+        <span>☁️ 雲端設定</span>
+        <span class="tab-sub">API Key・試算表</span>
       </button>
     </nav>
 
@@ -394,10 +404,44 @@
       </div>
     </section>
 
-    <!-- TAB 2: NUTRITION -->
+    <!-- TAB 2: NUTRITION & AI -->
     <section id="view-nutrition" class="hidden">
       <div id="poorSleepDietBanner" class="banner info hidden">
         <div><strong>😴 睡眠不足飲食提醒：</strong>14:00 後禁咖啡因，飲水目標拉高至 3,000–3,300 ml，蛋白質吃足穩住肌肉。</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">✨ AI 食物／照片自動分析</h2>
+          <div style="display:flex;gap:6px;">
+            <button class="mini-btn" onclick="switchTab('settings')">🔑 設定 Key</button>
+            <button class="mini-btn" onclick="document.getElementById('aiPanelBody').classList.toggle('hidden')">收合</button>
+          </div>
+        </div>
+        <div id="aiPanelBody">
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px;">
+            <input id="aiFoodText" type="text" style="flex:1;min-width:200px;" placeholder="輸入餐點描述（如：日式燒肉飯不淋汁＋無糖豆漿）" />
+            <label class="btn-secondary" style="cursor:pointer;">
+              📷 選照片
+              <input id="aiFoodFile" type="file" accept="image/*" class="hidden" onchange="onFoodImageSelected(this)" />
+            </label>
+            <button id="btnAnalyzeFood" class="btn-primary" onclick="analyzeFoodWithGemini()">✨ AI 分析</button>
+          </div>
+
+          <!-- 附加圖片預覽與刪除區 -->
+          <div id="aiImagePreviewBox" class="img-preview-bar hidden">
+            <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+              <img id="aiImageThumb" class="img-preview-thumb" src="" alt="預覽圖" />
+              <div style="min-width:0;">
+                <div id="aiImagePreviewName" style="font-size:0.8rem;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></div>
+                <div class="item-meta">已自動壓縮最佳化，可直接點 AI 分析</div>
+              </div>
+            </div>
+            <button type="button" class="mini-btn danger" onclick="clearFoodImage()">❌ 移除照片</button>
+          </div>
+
+          <div id="aiFoodResultBox" class="banner ok hidden" style="margin-top:8px;margin-bottom:0;"></div>
+        </div>
       </div>
 
       <div class="card">
@@ -498,6 +542,19 @@
     <!-- TAB 4: CLOUD & SETTINGS -->
     <section id="view-settings" class="hidden">
       <div class="card">
+        <h2 class="card-title" style="margin-bottom:8px;">🔑 獨立食物分析 Gemini API Key</h2>
+        <div class="item-meta" style="margin-bottom:8px;">
+          若要讓網頁直接呼叫 Gemini 分析餐點，可在此貼上 Key 並按「儲存 Key」。
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <input id="apiKeyInput" type="password" style="flex:1;min-width:200px;" placeholder="貼上 AIzaSy... 開頭的 Gemini API Key" />
+          <button class="btn-primary" onclick="saveApiKey()">儲存 Key</button>
+          <button class="btn-secondary" onclick="testGeminiKey()">測試連線</button>
+        </div>
+        <div id="keyTestResult" class="item-meta" style="margin-top:6px;"></div>
+      </div>
+
+      <div class="card">
         <h2 class="card-title" style="margin-bottom:8px;">☁️ Google 試算表／Apps Script 即時雲端同步</h2>
         <div class="item-meta" style="margin-bottom:8px;">
           貼上你的 Google Apps Script 網頁應用程式網址（Web App URL），每次儲存時會自動寫入 Google 試算表。
@@ -562,7 +619,7 @@ function doGet(e) {
   </div>
 
   <script>
-    const STORAGE_KEY = "strong_journal_no_api_v9";
+    const STORAGE_KEY = "strong_journal_with_ai_v10";
 
     const DAY_META = {
       mon: { label: "週一", title: "週一｜晚上排球實戰", note: "白天恢復為主，賽前 15 分鐘做好腳踝與髖關節動態熱身。", type: "ball", kcal: 2400, pro: 150, carb: 250, fat: 65 },
@@ -747,6 +804,7 @@ function doGet(e) {
         xp: 361,
         bodyWeight: 69.4,
         bodyFat: 16.8,
+        apiKey: "",
         gasUrl: "",
         baselines: {
           "A1": "5×5 @ 80kg",
@@ -805,7 +863,7 @@ function doGet(e) {
 
     function loadState() {
       try {
-        const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem("strong_journal_black_yellow_v8");
+        const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem("strong_journal_no_api_v9") || localStorage.getItem("strong_journal_black_yellow_v8");
         if (!raw) return createDefaultState();
         const parsed = Object.assign(createDefaultState(), JSON.parse(raw));
         ensureDateRecord(parsed, parsed.selectedDate);
@@ -1114,6 +1172,156 @@ function doGet(e) {
         String(Math.floor(restRemain / 60)).padStart(2, "0") + ":" + String(restRemain % 60).padStart(2, "0");
     }
 
+    /* ===== 食物圖片處理（自動壓縮＋預覽＋刪除） ===== */
+    let selectedImageBase64 = null;
+    let selectedImageMime = "image/jpeg";
+
+    function compressImageToBase64(file, callback) {
+      const reader = new FileReader();
+      reader.onload = function(ev) {
+        const dataUrl = String(ev.target.result || "");
+        const img = new Image();
+        img.onload = function() {
+          const maxDim = 1024;
+          let w = img.width;
+          let h = img.height;
+          if (w > maxDim || h > maxDim) {
+            if (w >= h) { h = Math.round(h * maxDim / w); w = maxDim; }
+            else { w = Math.round(w * maxDim / h); h = maxDim; }
+          }
+          const canvas = document.createElement("canvas");
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, w, h);
+          callback(canvas.toDataURL("image/jpeg", 0.8));
+        };
+        img.onerror = function() { callback(dataUrl); };
+        img.src = dataUrl;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function onFoodImageSelected(input) {
+      const file = input.files && input.files[0];
+      if (!file) return;
+      compressImageToBase64(file, function(compressedDataUrl) {
+        selectedImageMime = "image/jpeg";
+        selectedImageBase64 = compressedDataUrl.split(",")[1] || null;
+        document.getElementById("aiImageThumb").src = compressedDataUrl;
+        document.getElementById("aiImagePreviewName").textContent = file.name;
+        document.getElementById("aiImagePreviewBox").classList.remove("hidden");
+        showToast("已附加並壓縮餐點照片");
+      });
+    }
+
+    function clearFoodImage() {
+      selectedImageBase64 = null;
+      selectedImageMime = "image/jpeg";
+      const fileInput = document.getElementById("aiFoodFile");
+      if (fileInput) fileInput.value = "";
+      document.getElementById("aiImageThumb").src = "";
+      document.getElementById("aiImagePreviewName").textContent = "";
+      document.getElementById("aiImagePreviewBox").classList.add("hidden");
+      showToast("已移除附加照片");
+    }
+
+    async function callGeminiModels(key, parts) {
+      const models = ["gemini-3.8-flash", "gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"];
+      let lastErr = "未知錯誤";
+      for (let i = 0; i < models.length; i++) {
+        const url = "https://generativelanguage.googleapis.com/v1beta/models/" + models[i] + ":generateContent?key=" + encodeURIComponent(key);
+        const resp = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ contents: [{ parts: parts }] })
+        });
+        const data = await resp.json();
+        if (resp.ok && data && data.candidates && data.candidates[0]) {
+          return (data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0] && data.candidates[0].content.parts[0].text) || "";
+        }
+        lastErr = (data && data.error && data.error.message) ? data.error.message : ("HTTP " + resp.status);
+      }
+      throw new Error(lastErr);
+    }
+
+    async function testGeminiKey() {
+      const key = (document.getElementById("apiKeyInput").value || state.apiKey || "").trim();
+      if (!key) { showToast("請先貼上 API Key"); return; }
+      state.apiKey = key;
+      saveState();
+      const box = document.getElementById("keyTestResult");
+      box.style.color = "var(--text-muted)";
+      box.textContent = "連線測試中...";
+      try {
+        const reply = await callGeminiModels(key, [{ text: "請只回覆 OK" }]);
+        box.style.color = "var(--green)";
+        box.textContent = "✅ 連線成功！回應：" + reply.trim();
+      } catch (e) {
+        box.style.color = "var(--rose)";
+        box.textContent = "❌ 連線失敗：" + e.message;
+      }
+    }
+
+    async function analyzeFoodWithGemini() {
+      const key = (state.apiKey || "").trim();
+      if (!key) {
+        showToast("尚未設定 API Key，可先用下方快選或快貼匯入");
+        return;
+      }
+      const desc = (document.getElementById("aiFoodText").value || "").trim();
+      if (!desc && !selectedImageBase64) {
+        showToast("請輸入食物描述或選擇餐點照片");
+        return;
+      }
+
+      const btn = document.getElementById("btnAnalyzeFood");
+      const box = document.getElementById("aiFoodResultBox");
+      btn.disabled = true;
+      btn.textContent = "分析中...";
+
+      const prompt = '你是台灣運動營養師。請分析這份餐點的營養素，僅回傳純 JSON（不要 markdown 標記），格式為：{"name":"餐點名稱","kcal":數字,"pro":蛋白質克數,"carb":碳水克數,"fat":脂肪克數,"tip":"給目標體脂16.8%降到12%的排球運動員一句簡短止損或搭配建議"} 餐點描述：' + (desc || "請根據圖片辨識食物與份量");
+      const parts = [{ text: prompt }];
+      if (selectedImageBase64) {
+        parts.push({ inline_data: { mime_type: selectedImageMime, data: selectedImageBase64 } });
+      }
+
+      try {
+        const text = await callGeminiModels(key, parts);
+        const jsonMatch = text.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) throw new Error("AI 回傳格式無法解析");
+        const parsed = JSON.parse(jsonMatch[0]);
+
+        const rec = getCurrentRecord();
+        rec.meals.push({
+          id: "ai_" + Date.now(),
+          name: parsed.name || desc || "AI 分析餐點",
+          kcal: Number(parsed.kcal) || 0,
+          pro: Number(parsed.pro) || 0,
+          carb: Number(parsed.carb) || 0,
+          fat: Number(parsed.fat) || 0
+        });
+        state.xp += 15;
+        saveState();
+
+        box.className = "banner ok";
+        box.classList.remove("hidden");
+        box.innerHTML = "<div><strong>已自動加入：" + parsed.name + "</strong>（" + parsed.kcal + " kcal｜蛋白 " + parsed.pro + "g｜碳水 " + parsed.carb + "g｜脂肪 " + parsed.fat + "g）<br/><span>💡 " + (parsed.tip || "") + "</span></div>";
+
+        document.getElementById("aiFoodText").value = "";
+        clearFoodImage();
+        renderNutrition();
+        showToast("AI 分析完成並已加入今日三餐");
+      } catch (err) {
+        box.className = "banner warn";
+        box.classList.remove("hidden");
+        box.innerHTML = "<div><strong>AI 分析失敗：</strong>" + (err.message || "API 連線異常") + "<br/><span>可直接點下方「外食快選」或「貼上聊天室食物分析結果」秒加。</span></div>";
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "✨ AI 分析";
+      }
+    }
+
     /* ===== 飲食記錄（快選＋快貼＋手動） ===== */
     function renderQuickChips() {
       document.getElementById("quickFoodChips").innerHTML = QUICK_FOODS.map(function(f, idx) {
@@ -1246,7 +1454,7 @@ function doGet(e) {
               '<button class="mini-btn" onclick="deleteMeal(\'' + m.id + '\')">刪除</button>' +
             '</div>';
           }).join("")
-        : '<div class="item-meta">尚無餐點紀錄，點上方快選按鈕或貼上聊天室分析結果即可秒加。</div>';
+        : '<div class="item-meta">尚無餐點紀錄，可使用上方 AI 分析或零額度快選。</div>';
     }
 
     function updateBodyMetrics() {
@@ -1278,6 +1486,12 @@ function doGet(e) {
           '<span class="mini-btn">開啟</span>' +
         '</div>';
       }).join("");
+    }
+
+    function saveApiKey() {
+      state.apiKey = (document.getElementById("apiKeyInput").value || "").trim();
+      saveState();
+      showToast("已儲存獨立 Gemini API Key");
     }
 
     function saveGasUrl() {
@@ -1316,8 +1530,10 @@ function doGet(e) {
         const resp = await fetch(state.gasUrl);
         const data = await resp.json();
         if (data && data.ok && data.payload) {
+          const keepKey = state.apiKey;
           const keepUrl = state.gasUrl;
           state = Object.assign(createDefaultState(), data.payload);
+          if (!state.apiKey) state.apiKey = keepKey;
           if (!state.gasUrl) state.gasUrl = keepUrl;
           saveState();
           renderAll();
@@ -1405,6 +1621,7 @@ function doGet(e) {
       const rec = getCurrentRecord();
       document.getElementById("datePicker").value = state.selectedDate;
       document.getElementById("dayTemplateSelect").value = rec.dayKey;
+      document.getElementById("apiKeyInput").value = state.apiKey || "";
       document.getElementById("gasUrlInput").value = state.gasUrl || "";
 
       renderWorkout();
