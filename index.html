@@ -1,0 +1,1657 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="theme-color" content="#0A0A0A" />
+  <title>變強全能日誌｜黑底黃線版</title>
+  <style>
+    :root {
+      --bg: #0A0A0A;
+      --surface: #141414;
+      --surface-2: #1E1E1E;
+      --surface-3: #282828;
+      --text: #F8FAFC;
+      --text-muted: #A1A1AA;
+      --border: #2E2E32;
+      --accent: #FACC15;
+      --accent-text: #0A0A0A;
+      --accent-soft: rgba(250, 204, 21, 0.14);
+      --green: #22C55E;
+      --green-soft: rgba(34, 197, 94, 0.14);
+      --amber: #F59E0B;
+      --amber-soft: rgba(245, 158, 11, 0.14);
+      --rose: #F43F5E;
+      --rose-soft: rgba(244, 63, 94, 0.14);
+      --blue: #38BDF8;
+      --radius: 16px;
+      --radius-sm: 10px;
+      --shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+    }
+
+    body.light-mode {
+      --bg: #F4F6FA;
+      --surface: #FFFFFF;
+      --surface-2: #EEF2F7;
+      --surface-3: #E2E8F0;
+      --text: #0F172A;
+      --text-muted: #64748B;
+      --border: #CBD5E1;
+      --accent: #EAB308;
+      --accent-text: #0F172A;
+      --accent-soft: rgba(234, 179, 8, 0.16);
+      --shadow: 0 2px 10px rgba(15, 23, 42, 0.06);
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    html, body {
+      margin: 0; padding: 0;
+      background: var(--bg); color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang TC", "Noto Sans TC", sans-serif;
+      line-height: 1.5; min-height: 100vh;
+    }
+
+    .app { max-width: 780px; margin: 0 auto; padding: 14px 14px 124px; }
+
+    .topbar {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--accent);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      box-shadow: var(--shadow);
+      margin-bottom: 12px;
+    }
+
+    .topbar-row {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      gap: 10px; flex-wrap: wrap;
+    }
+
+    .app-title { font-size: 1.24rem; font-weight: 900; margin: 0; letter-spacing: -0.01em; }
+    .app-title span { color: var(--accent); }
+    .app-sub { font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; }
+
+    .top-actions { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+
+    .pill-btn {
+      border: 1px solid var(--border); background: var(--surface-2); color: var(--text);
+      border-radius: 999px; padding: 6px 11px; font-size: 0.76rem; font-weight: 700;
+      cursor: pointer; display: inline-flex; align-items: center; gap: 5px;
+    }
+    .pill-btn.active-warn { background: var(--rose-soft); border-color: var(--rose); color: var(--rose); }
+    .pill-btn.active-accent { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+
+    .date-strip {
+      margin-top: 11px; padding-top: 11px; border-top: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;
+    }
+
+    .date-controls { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+
+    input[type="date"], input[type="text"], input[type="number"], input[type="password"], select, textarea {
+      background: var(--surface-2); color: var(--text); border: 1px solid var(--border);
+      border-radius: 10px; padding: 8px 10px; font-size: 0.85rem; font-family: inherit;
+    }
+    input[type="date"] { padding: 6px 10px; font-weight: 700; }
+
+    .sync-badge {
+      font-size: 0.73rem; font-weight: 800; padding: 4px 10px; border-radius: 999px;
+      background: var(--surface-2); color: var(--text-muted); border: 1px solid var(--border);
+    }
+    .sync-badge.ok { background: var(--green-soft); color: var(--green); border-color: rgba(34, 197, 94, 0.35); }
+
+    .main-tabs {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 6px; margin-bottom: 12px;
+    }
+
+    .tab-btn {
+      border: none; background: transparent; color: var(--text-muted);
+      border-radius: 11px; padding: 9px 4px; font-size: 0.84rem; font-weight: 800;
+      cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px;
+    }
+    .tab-btn .tab-sub { font-size: 0.65rem; font-weight: 600; opacity: 0.85; }
+    .tab-btn.active { background: var(--accent); color: var(--accent-text); }
+
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 14px 15px;
+      box-shadow: var(--shadow); margin-bottom: 12px;
+    }
+    .card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 8px; margin-bottom: 10px; flex-wrap: wrap;
+    }
+    .card-title { font-size: 0.96rem; font-weight: 800; margin: 0; display: flex; align-items: center; gap: 6px; }
+
+    .banner {
+      border-radius: var(--radius-sm); padding: 11px 13px; margin-bottom: 12px;
+      font-size: 0.83rem; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+    }
+    .banner.warn { background: var(--rose-soft); border: 1px solid rgba(244, 63, 94, 0.38); }
+    .banner.info { background: var(--accent-soft); border: 1px solid rgba(250, 204, 21, 0.38); }
+    .banner.ok   { background: var(--green-soft); border: 1px solid rgba(34, 197, 94, 0.38); }
+
+    .stage-box {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 12px; margin-bottom: 12px;
+    }
+    .stage-box.warmup { border-left: 4px solid var(--amber); }
+    .stage-box.main   { border-left: 4px solid var(--accent); }
+    .stage-box.cool   { border-left: 4px solid var(--green); }
+
+    .stage-head {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 8px; margin-bottom: 10px; flex-wrap: wrap;
+    }
+    .stage-badge {
+      font-size: 0.72rem; font-weight: 800; padding: 2px 8px; border-radius: 999px;
+      background: var(--accent-soft); color: var(--accent);
+    }
+
+    .item-row {
+      background: var(--surface-2); border: 1px solid var(--border);
+      border-radius: 12px; padding: 11px 12px; margin-bottom: 8px;
+    }
+    .item-row:last-child { margin-bottom: 0; }
+    .item-row.done { opacity: 0.65; }
+    .item-row.done .item-name { text-decoration: line-through; color: var(--text-muted); }
+
+    .item-top { display: flex; align-items: flex-start; gap: 10px; }
+
+    .check-circle {
+      width: 26px; height: 26px; min-width: 26px; border-radius: 50%;
+      border: 2px solid var(--accent); background: transparent; color: var(--accent-text);
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 0.85rem; font-weight: 900; cursor: pointer; margin-top: 1px;
+    }
+    .check-circle.checked { background: var(--accent); border-color: var(--accent); }
+
+    .code-tag {
+      background: var(--accent); color: var(--accent-text);
+      font-size: 0.72rem; font-weight: 900; padding: 2px 7px; border-radius: 6px; margin-right: 6px;
+    }
+    .item-name { font-size: 0.92rem; font-weight: 800; flex: 1; }
+    .item-meta { font-size: 0.76rem; color: var(--text-muted); margin-top: 2px; }
+
+    .mini-btn {
+      border: 1px solid var(--border); background: var(--surface); color: var(--text);
+      border-radius: 8px; padding: 5px 8px; font-size: 0.74rem; font-weight: 700; cursor: pointer;
+    }
+    .mini-btn.danger { background: var(--rose-soft); border-color: var(--rose); color: var(--rose); }
+    .mini-btn.timer-btn { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+    .mini-btn.timer-btn.running { background: var(--rose); border-color: var(--rose); color: #FFFFFF; }
+
+    .steppers {
+      margin-top: 9px; padding-top: 9px; border-top: 1px dashed var(--border);
+      display: flex; flex-wrap: wrap; align-items: center; gap: 7px;
+    }
+
+    .stepper-group {
+      display: inline-flex; align-items: center; background: var(--surface);
+      border: 1px solid var(--border); border-radius: 9px; overflow: hidden;
+    }
+    .stepper-group button {
+      border: none; background: transparent; color: var(--accent);
+      width: 28px; height: 28px; font-size: 0.95rem; font-weight: 900; cursor: pointer;
+    }
+    .stepper-val { padding: 0 7px; font-size: 0.78rem; font-weight: 800; white-space: nowrap; }
+
+    .last-badge {
+      font-size: 0.72rem; color: var(--accent); background: var(--accent-soft);
+      border: 1px solid rgba(250, 204, 21, 0.3); border-radius: 7px;
+      padding: 4px 8px; font-weight: 700; cursor: pointer;
+    }
+
+    .cue-box {
+      margin-top: 7px; padding: 8px 10px; border-radius: 9px;
+      background: var(--surface); border: 1px solid var(--border);
+      font-size: 0.78rem; color: var(--text-muted);
+    }
+
+    .btn-primary {
+      background: var(--accent); color: var(--accent-text); border: none;
+      border-radius: 10px; padding: 9px 14px; font-size: 0.84rem; font-weight: 800;
+      cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+    }
+    .btn-secondary {
+      background: var(--surface-2); color: var(--text); border: 1px solid var(--border);
+      border-radius: 10px; padding: 8px 12px; font-size: 0.82rem; font-weight: 700;
+      cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+    }
+
+    .img-preview-bar {
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      background: var(--surface-2); border: 1px solid var(--border);
+      border-radius: 10px; padding: 8px 10px; margin-top: 8px;
+    }
+    .img-preview-thumb {
+      width: 48px; height: 48px; border-radius: 8px; object-fit: cover; border: 1px solid var(--border);
+    }
+
+    .rings-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 9px; }
+    @media (min-width: 560px) { .rings-grid { grid-template-columns: repeat(4, 1fr); } }
+
+    .ring-card {
+      background: var(--surface-2); border: 1px solid var(--border);
+      border-radius: 12px; padding: 10px; display: flex; align-items: center; gap: 9px;
+    }
+    .ring-label { font-size: 0.72rem; color: var(--text-muted); font-weight: 700; }
+    .ring-rem   { font-size: 0.94rem; font-weight: 900; }
+    .ring-sub   { font-size: 0.68rem; color: var(--text-muted); }
+
+    .chips-wrap { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .food-chip {
+      background: var(--surface-2); border: 1px solid var(--border); color: var(--text);
+      border-radius: 999px; padding: 5px 10px; font-size: 0.75rem; font-weight: 700; cursor: pointer;
+    }
+    .food-chip:active { border-color: var(--accent); color: var(--accent); }
+
+    .meal-item {
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+      background: var(--surface-2); border: 1px solid var(--border);
+      border-radius: 10px; padding: 9px 11px; margin-bottom: 7px; font-size: 0.82rem;
+    }
+
+    .prog-track {
+      width: 100%; height: 10px; background: var(--surface-2);
+      border-radius: 999px; overflow: hidden; border: 1px solid var(--border);
+    }
+    .prog-fill { height: 100%; background: var(--accent); border-radius: 999px; transition: width 0.3s ease; }
+
+    .floating-rest {
+      position: fixed; left: 50%; bottom: 64px; transform: translateX(-50%);
+      width: calc(100% - 28px); max-width: 752px;
+      background: var(--surface); border: 2px solid var(--accent);
+      border-radius: 14px; padding: 9px 12px; box-shadow: var(--shadow);
+      display: none; align-items: center; justify-content: space-between; gap: 8px; z-index: 40;
+    }
+    .floating-rest.show { display: flex; }
+
+    .bottom-bar {
+      position: fixed; left: 0; right: 0; bottom: 0;
+      background: var(--surface); border-top: 1px solid var(--border);
+      padding: 8px 12px; z-index: 35;
+    }
+    .bottom-inner { max-width: 780px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+    .toast {
+      position: fixed; top: 16px; left: 50%; transform: translateX(-50%) translateY(-20px);
+      background: var(--accent); color: var(--accent-text); padding: 9px 16px;
+      border-radius: 999px; font-size: 0.82rem; font-weight: 900;
+      opacity: 0; pointer-events: none; transition: all 0.2s ease; z-index: 60; white-space: nowrap;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    .hidden { display: none !important; }
+    pre.code-sample {
+      background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px;
+      padding: 10px; font-size: 0.72rem; overflow-x: auto; color: var(--accent);
+    }
+  </style>
+</head>
+<body>
+  <div id="toast" class="toast"></div>
+
+  <div class="app">
+    <header class="topbar">
+      <div class="topbar-row">
+        <div>
+          <h1 class="app-title">變強<span>全能日誌</span></h1>
+          <div class="app-sub">跳高・扣重・厚胸背粗手臂・體脂 16.8% → 12%｜6+1 碳水循環</div>
+        </div>
+        <div class="top-actions">
+          <button id="btnOutdoor" class="pill-btn" onclick="toggleOutdoorMode()">🏟️ 室外場無滾筒</button>
+          <button id="btnSleepPoor" class="pill-btn" onclick="togglePoorSleep()">😴 昨晚沒睡好</button>
+          <button id="btnTheme" class="pill-btn" onclick="toggleThemeMode()">🌓 黑黃/淺色</button>
+        </div>
+      </div>
+
+      <div class="date-strip">
+        <div class="date-controls">
+          <button class="mini-btn" onclick="shiftDate(-1)">◀ 前一天</button>
+          <input id="datePicker" type="date" onchange="onDateChange(this.value)" />
+          <button class="mini-btn" onclick="shiftDate(1)">後一天 ▶</button>
+          <select id="dayTemplateSelect" onchange="changeDayTemplate(this.value)" style="padding:6px 8px;font-weight:700;">
+            <option value="mon">週一｜打球日</option>
+            <option value="tue">週二｜下肢 A</option>
+            <option value="wed">週三｜上肢 B</option>
+            <option value="thu">週四｜打球日</option>
+            <option value="fri">週五｜跳臂 C</option>
+            <option value="sat">週六｜休息低碳</option>
+            <option value="sun">週日｜復燃練球</option>
+          </select>
+        </div>
+        <span id="syncStatusBadge" class="sync-badge">本機＋歷史基準已載入</span>
+      </div>
+    </header>
+
+    <nav class="main-tabs">
+      <button id="tab-workout" class="tab-btn active" onclick="switchTab('workout')">
+        <span>💪 訓練清單</span>
+        <span class="tab-sub">熱身・主課・收操</span>
+      </button>
+      <button id="tab-nutrition" class="tab-btn" onclick="switchTab('nutrition')">
+        <span>🥗 飲食 AI</span>
+        <span class="tab-sub">剩餘額度・獨立Key</span>
+      </button>
+      <button id="tab-progress" class="tab-btn" onclick="switchTab('progress')">
+        <span>📈 體態進度</span>
+        <span class="tab-sub">12%腹肌・歷史回顧</span>
+      </button>
+      <button id="tab-settings" class="tab-btn" onclick="switchTab('settings')">
+        <span>☁️ 雲端設定</span>
+        <span class="tab-sub">試算表・存檔備份</span>
+      </button>
+    </nav>
+
+    <!-- TAB 1: WORKOUT -->
+    <section id="view-workout">
+      <div id="poorSleepWorkoutBanner" class="banner warn hidden">
+        <div>
+          <strong>😴 昨晚沒睡好保護模式已開啟</strong><br />
+          <span>建議主課表減 1 組、降重 10%，避免起跳與煞車疲勞受傷。</span>
+        </div>
+        <button class="btn-primary" onclick="applyDeloadToday()">一鍵套用今日降載</button>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h2 id="workoutDayTitle" class="card-title">今日課表</h2>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            <button class="mini-btn" onclick="toggleCodeBox()">⌨️ 代碼速填</button>
+            <button class="mini-btn" onclick="openRestTimer(90)">⏱️ 休 90s</button>
+          </div>
+        </div>
+        <div id="workoutDayNote" class="item-meta"></div>
+
+        <div id="codeBox" class="hidden" style="margin-top:10px;">
+          <textarea id="codeInput" style="width:100%;min-height:72px;" placeholder="例如：B1 4*6 15 / B2 4*8 20 / B3 4*10 40"></textarea>
+          <div style="display:flex;gap:8px;margin-top:7px;">
+            <button class="btn-primary" onclick="parseAndApplyCodes()">套用並自動打勾</button>
+            <button class="btn-secondary" onclick="toggleCodeBox()">收合</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="stage-box warmup">
+        <div class="stage-head">
+          <span class="card-title">🔥 階段一：練前動態熱身</span>
+          <span class="stage-badge" id="warmupModeTag">室內健身房模式</span>
+        </div>
+        <div id="warmupList"></div>
+      </div>
+
+      <div class="stage-box main">
+        <div class="stage-head">
+          <span class="card-title">🏋️ 階段二：重訓／專項主課表</span>
+          <span class="stage-badge">弱側先做・勾選自動跳休息計時</span>
+        </div>
+        <div id="mainList"></div>
+      </div>
+
+      <div class="stage-box cool">
+        <div class="stage-head">
+          <span class="card-title">🧘 階段三：練後靜態收操</span>
+          <span class="stage-badge">最後 3 秒提示音・螢幕防休眠</span>
+        </div>
+        <div id="cooldownList"></div>
+      </div>
+    </section>
+
+    <!-- TAB 2: NUTRITION & AI -->
+    <section id="view-nutrition" class="hidden">
+      <div id="poorSleepDietBanner" class="banner info hidden">
+        <div><strong>😴 睡眠不足飲食提醒：</strong>14:00 後禁咖啡因，飲水目標拉高至 3,000–3,300 ml，蛋白質吃足穩住肌肉。</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">✨ AI 食物／照片自動分析（Gemini 3.8 Flash）</h2>
+          <div style="display:flex;gap:6px;">
+            <button class="mini-btn" onclick="switchTab('settings')">🔑 設定 Key</button>
+            <button class="mini-btn" onclick="document.getElementById('aiPanelBody').classList.toggle('hidden')">收合</button>
+          </div>
+        </div>
+        <div id="aiPanelBody">
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px;">
+            <input id="aiFoodText" type="text" style="flex:1;min-width:200px;" placeholder="輸入餐點描述（如：日式燒肉飯不淋汁＋無糖豆漿）" />
+            <label class="btn-secondary" style="cursor:pointer;">
+              📷 選照片
+              <input id="aiFoodFile" type="file" accept="image/*" class="hidden" onchange="onFoodImageSelected(this)" />
+            </label>
+            <button id="btnAnalyzeFood" class="btn-primary" onclick="analyzeFoodWithGemini()">✨ AI 分析</button>
+          </div>
+
+          <!-- 附加圖片預覽與刪除區 -->
+          <div id="aiImagePreviewBox" class="img-preview-bar hidden">
+            <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+              <img id="aiImageThumb" class="img-preview-thumb" src="" alt="預覽圖" />
+              <div style="min-width:0;">
+                <div id="aiImagePreviewName" style="font-size:0.8rem;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></div>
+                <div class="item-meta">已自動壓縮最佳化，可直接點 AI 分析</div>
+              </div>
+            </div>
+            <button type="button" class="mini-btn danger" onclick="clearFoodImage()">❌ 移除照片</button>
+          </div>
+
+          <div id="aiFoodResultBox" class="banner ok hidden" style="margin-top:8px;margin-bottom:0;"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h2 id="nutritionTargetTitle" class="card-title">今日營養剩餘額度（6+1 碳水循環）</h2>
+          <span id="cycleTypeTag" class="stage-badge">訓練／打球日</span>
+        </div>
+        <div id="ringsGrid" class="rings-grid"></div>
+        <div id="supplyAdviceBox" class="banner ok" style="margin-top:11px;margin-bottom:10px;"></div>
+
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;padding-top:8px;border-top:1px dashed var(--border);">
+          <label style="display:inline-flex;align-items:center;gap:6px;font-size:0.82rem;font-weight:700;cursor:pointer;">
+            <input type="checkbox" id="creatineCheck" onchange="toggleCreatine(this.checked)" />
+            每日肌酸 5g 已補充
+          </label>
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+            <span id="waterLabel" style="font-size:0.82rem;font-weight:800;">飲水：0 / 3000 ml</span>
+            <button class="mini-btn" onclick="addWater(300)">+300ml</button>
+            <button class="mini-btn" onclick="addWater(500)">+500ml</button>
+            <button class="mini-btn" onclick="resetWater()">歸零</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">⚡ 零額度外食與補給快選</h3>
+          <span class="item-meta">免 AI 額度・離線秒加</span>
+        </div>
+        <div id="quickFoodChips" class="chips-wrap"></div>
+      </div>
+
+      <div class="card">
+        <h3 class="card-title" style="margin-bottom:9px;">➕ 手動新增餐食</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+          <input id="mealName" type="text" placeholder="餐點名稱" />
+          <input id="mealKcal" type="number" placeholder="熱量 kcal" />
+          <input id="mealPro" type="number" placeholder="蛋白質 g" />
+          <input id="mealCarb" type="number" placeholder="碳水 g" />
+        </div>
+        <div style="display:grid;grid-template-columns:1fr auto;gap:8px;">
+          <input id="mealFat" type="number" placeholder="脂肪 g" />
+          <button class="btn-primary" onclick="addCustomMeal()">加入紀錄</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">🍽️ 當日已記錄餐食</h3>
+          <button class="mini-btn" onclick="clearTodayMeals()">清空當日</button>
+        </div>
+        <div id="mealsList"></div>
+      </div>
+    </section>
+
+    <!-- TAB 3: PROGRESS & HISTORY -->
+    <section id="view-progress" class="hidden">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">🎯 體脂 16.8% → 12.0% 腹肌進度追蹤</h2>
+          <span id="xpHeaderBadge" class="stage-badge">Lv.3 扣球重砲手 · 361 XP</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:center;margin-bottom:10px;">
+          <div>
+            <div class="item-meta">目前體重 (kg)</div>
+            <input id="curWeightInput" type="number" step="0.1" value="69.4" />
+          </div>
+          <div>
+            <div class="item-meta">目前體脂率 (%)</div>
+            <input id="curBfInput" type="number" step="0.1" value="16.8" />
+          </div>
+          <button class="btn-primary" style="margin-top:16px;" onclick="updateBodyMetrics()">更新</button>
+        </div>
+        <div class="prog-track"><div id="bfProgFill" class="prog-fill" style="width:0%;"></div></div>
+        <div id="bfProgText" class="item-meta" style="margin-top:6px;"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">📅 歷史日期紀錄一覽（含 11/24・11/25 預載）</h3>
+          <span class="item-meta">點擊日期可切換檢視</span>
+        </div>
+        <div id="historyDatesList"></div>
+      </div>
+    </section>
+
+    <!-- TAB 4: CLOUD & SETTINGS -->
+    <section id="view-settings" class="hidden">
+      <div class="card">
+        <h2 class="card-title" style="margin-bottom:8px;">🔑 獨立食物分析 Gemini API Key（支援 Gemini 3.8 Flash）</h2>
+        <div class="item-meta" style="margin-bottom:8px;">
+          已設定優先呼叫 <code>models/gemini-3.8-flash</code> 並自動備援可用最新模型。
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <input id="apiKeyInput" type="password" style="flex:1;min-width:200px;" placeholder="貼上 AIzaSy... 開頭的 Gemini API Key" />
+          <button class="btn-primary" onclick="saveApiKey()">儲存 Key</button>
+          <button class="btn-secondary" onclick="testGeminiKey()">測試連線</button>
+        </div>
+        <div id="keyTestResult" class="item-meta" style="margin-top:6px;"></div>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title" style="margin-bottom:8px;">☁️ Google 試算表／Apps Script 即時雲端同步</h2>
+        <div class="item-meta" style="margin-bottom:8px;">
+          貼上你的 Google Apps Script 網頁應用程式網址（Web App URL），每次儲存時會自動寫入 Google 試算表。
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:8px;">
+          <input id="gasUrlInput" type="text" style="flex:1;" placeholder="https://script.google.com/macros/s/...../exec" />
+          <button class="btn-primary" onclick="saveGasUrl()">儲存網址</button>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn-secondary" onclick="syncToGoogleSheet()">⬆️ 立即上傳同步</button>
+          <button class="btn-secondary" onclick="pullFromGoogleSheet()">⬇️ 從雲端拉回最新</button>
+          <button class="mini-btn" onclick="toggleGasCode()">檢視 Apps Script 程式碼</button>
+        </div>
+        <pre id="gasCodeBox" class="code-sample hidden">function doPost(e) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName("Logs") || ss.insertSheet("Logs");
+  var body = JSON.parse(e.postData.contents);
+  sheet.appendRow([new Date(), body.date, JSON.stringify(body.payload)]);
+  return ContentService.createTextOutput(JSON.stringify({ ok: true })).setMimeType(ContentService.MimeType.JSON);
+}
+function doGet(e) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName("Logs");
+  if (!sheet || sheet.getLastRow() &lt; 1) {
+    return ContentService.createTextOutput(JSON.stringify({ ok: false })).setMimeType(ContentService.MimeType.JSON);
+  }
+  var lastVal = sheet.getRange(sheet.getLastRow(), 3).getValue();
+  return ContentService.createTextOutput(JSON.stringify({ ok: true, payload: JSON.parse(lastVal) })).setMimeType(ContentService.MimeType.JSON);
+}</pre>
+      </div>
+
+      <div class="card">
+        <h3 class="card-title" style="margin-bottom:8px;">💾 完整存檔碼備份與還原</h3>
+        <textarea id="backupCodeBox" style="width:100%;min-height:74px;" placeholder="點「匯出存檔碼」可複製備份；或在此貼上舊存檔碼後按「還原存檔」。"></textarea>
+        <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;">
+          <button class="btn-secondary" onclick="exportBackupCode()">📤 匯出並複製存檔碼</button>
+          <button class="btn-primary" onclick="importBackupCode()">📥 貼上還原存檔</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Floating Rest Timer -->
+  <div id="floatingRest" class="floating-rest">
+    <div>
+      <div style="font-size:0.72rem;color:var(--text-muted);font-weight:700;">組間休息倒數（Wake Lock 防休眠）</div>
+      <div id="restCountdownText" style="font-size:1.15rem;font-weight:900;color:var(--accent);">01:30</div>
+    </div>
+    <div style="display:flex;gap:6px;align-items:center;">
+      <button class="mini-btn" onclick="adjustRest(-15)">-15s</button>
+      <button class="mini-btn" onclick="adjustRest(15)">+15s</button>
+      <button class="mini-btn" onclick="closeRestTimer()">關閉</button>
+    </div>
+  </div>
+
+  <!-- Bottom Action Bar -->
+  <div class="bottom-bar">
+    <div class="bottom-inner">
+      <button class="btn-secondary" onclick="saveAndSyncAll()">💾 儲存並更新基準</button>
+      <button class="btn-primary" onclick="copyFullSummary()">📋 一鍵複製今日結算</button>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "strong_journal_black_yellow_v8";
+
+    const DAY_META = {
+      mon: { label: "週一", title: "週一｜晚上排球實戰", note: "白天恢復為主，賽前 15 分鐘做好腳踝與髖關節動態熱身。", type: "ball", kcal: 2400, pro: 150, carb: 250, fat: 65 },
+      tue: { label: "週二", title: "週二｜下肢肌力 ＋ 離心煞車（A）", note: "修正 17.9% 煞車不對稱：左腳先做、慢下 3 秒；分腿蹲左腳多 1 組。", type: "lift", kcal: 2400, pro: 150, carb: 250, fat: 65 },
+      wed: { label: "週三", title: "週三｜上半身厚度 ＋ 扣球旋轉（B）", note: "強化胸背厚度、扣球旋轉傳遞與手臂圍度；左手二頭彎舉先做且多 1 組。", type: "lift", kcal: 2400, pro: 150, carb: 250, fat: 65 },
+      thu: { label: "週四", title: "週四｜晚上排球實戰", note: "將週二、週三力量轉換至場上，留意最後兩步煞車雙腳平衡。", type: "ball", kcal: 2400, pro: 150, carb: 250, fat: 65 },
+      fri: { label: "週五", title: "週五｜低衝擊彈跳吸震 ＋ 手臂肩膀（C）", note: "腳踝彈性與單腳落地定格，加上手臂與後肩補量，不拖累週日練球。", type: "lift", kcal: 2400, pro: 150, carb: 250, fat: 65 },
+      sat: { label: "週六", title: "週六｜完全休息 ＋ 胸椎活動度（6+1 低碳日）", note: "澱粉減半（130g）、蛋白質維持 150g；做側躺開書式伸展。", type: "rest", kcal: 1900, pro: 150, carb: 130, fat: 65 },
+      sun: { label: "週日", title: "週日｜復燃練球", note: "高強度專項整合：專注助跑起跳節奏、空中收腹核心與揮臂鞭打。", type: "ball", kcal: 2400, pro: 150, carb: 250, fat: 65 }
+    };
+
+    const QUICK_FOODS = [
+      { name: "烤雞腿排便當", kcal: 800, pro: 38, carb: 80, fat: 31 },
+      { name: "日式燒肉飯（不淋汁）", kcal: 710, pro: 28, carb: 85, fat: 24 },
+      { name: "超商舒肥雞胸肉", kcal: 145, pro: 26, carb: 1, fat: 3 },
+      { name: "MARS 水解乳清 1包", kcal: 120, pro: 26, carb: 3, fat: 1 },
+      { name: "無糖濃豆漿 400ml", kcal: 205, pro: 19, carb: 8, fat: 9 },
+      { name: "茶葉蛋 1顆", kcal: 75, pro: 7, carb: 1, fat: 5 },
+      { name: "烤地瓜（中150g）", kcal: 195, pro: 2, carb: 45, fat: 0.3 },
+      { name: "鮪魚御飯糰 1顆", kcal: 230, pro: 6, carb: 38, fat: 5 }
+    ];
+
+    function getTodayISO() {
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = String(now.getMonth() + 1).padStart(2, "0");
+      const d = String(now.getDate()).padStart(2, "0");
+      return y + "-" + m + "-" + d;
+    }
+
+    function getWeekdayKeyFromISO(isoStr) {
+      const parts = isoStr.split("-").map(Number);
+      const dt = new Date(parts[0], parts[1] - 1, parts[2]);
+      const map = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
+      return map[dt.getDay()] || "thu";
+    }
+
+    function copyTextSafe(text, successMsg) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function() {
+          showToast(successMsg);
+        }).catch(function() {
+          fallbackCopy(text, successMsg);
+        });
+      } else {
+        fallbackCopy(text, successMsg);
+      }
+    }
+
+    function fallbackCopy(text, successMsg) {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      try {
+        document.execCommand("copy");
+        showToast(successMsg);
+      } catch (e) {
+        showToast("請手動長按全選複製");
+      }
+      document.body.removeChild(ta);
+    }
+
+    function buildDayPlan(dayKey, outdoorMode) {
+      const lowerWarm = [
+        { id: "w_ankle", name: "腳踝活動度前推", meta: "每腳 10 下", sec: 40, cue: "高跪姿、前腳掌踩實，膝蓋往腳尖正前方推到底再退回。" },
+        { id: "w_wgs", name: "世界最偉大伸展", meta: "每邊 5 下", sec: 45, cue: "大弓箭步手肘下沉後轉身開胸，啟動髖屈肌與胸椎。" },
+        { id: "w_glute", name: "單腳臀橋（左腳先做）", meta: "每腳 8 下・頂點停 1s", sec: 40, cue: "先喚醒較弱的左臀肌，減少起跳煞車與落地代償。" }
+      ];
+      const upperWarm = [
+        {
+          id: "w_thoracic",
+          name: outdoorMode ? "四足跪姿穿針引線（無滾筒替代）" : "滾筒胸椎伸展",
+          meta: "每邊 8 次",
+          sec: 40,
+          cue: outdoorMode ? "室外無滾筒時以四足跪姿單手穿過腋下轉動上背，打開扣球拉弓幅度。" : "滾筒置於肩胛骨下緣，後仰開胸不拱腰。"
+        },
+        { id: "w_scap", name: "肩胛伏地挺身＋肩外旋啟動", meta: "各 10–12 下", sec: 45, cue: "啟動肩袖與肩胛穩定肌群，保護推舉與扣球揮臂。" }
+      ];
+      const lowerCool = [
+        { id: "c_hip", name: outdoorMode ? "站姿大弓箭步髖屈肌伸展（無滾筒/硬地替代）" : "跪姿髖屈肌伸展", meta: "每側 35 秒", sec: 35, cue: "骨盆微後傾夾緊臀部、重心微前推，減輕髕骨肌腱拉力。" },
+        { id: "c_calf", name: "靠牆小腿雙角度伸展", meta: "直膝＋微蹲各 30 秒", sec: 30, cue: "後腳跟踩實地面，舒緩起跳與落地的阿基里斯腱。" },
+        {
+          id: "c_quad",
+          name: outdoorMode ? "站姿動態股四頭輕拉＋4 字臀肌伸展" : "滾筒低強度放鬆（股四頭＋臀肌）",
+          meta: "每側 40 秒",
+          sec: 40,
+          cue: outdoorMode ? "手扶牆或網柱輕拉 3 秒微放 1 秒，不弄髒衣服又能加速排酸。" : "輕慢滾動大腿前側與臀肌促進循環，勿死壓痛點。"
+        }
+      ];
+      const upperCool = [
+        { id: "c_chest", name: "牆柱／深蹲架單臂胸肌伸展", meta: "每側 35 秒", sec: 35, cue: "前臂貼立柱微轉身拉開胸大肌，避免圓肩限制扣球。" },
+        { id: "c_lat", name: "跪姿背闊肌伸展", meta: "35 秒", sec: 35, cue: "雙手前伸臀部坐向腳跟，拉長扣球下壓主力肌群。" },
+        { id: "c_arm", name: "過頂三頭＋扶牆二頭伸展", meta: "各 30 秒", sec: 30, cue: "舒緩上肢推拉與手臂超級組後的緊繃張力。" }
+      ];
+
+      if (dayKey === "tue") {
+        return {
+          warmup: lowerWarm,
+          main: [
+            { id: "m_a1", code: "A1", name: "槓鈴深蹲（或六角槓硬舉）", sets: 5, reps: 5, weight: 80, bodyweight: false, restSec: 150, cue: "推起要快、核心繃緊；若昨晚沒睡好可減 1 組或降重 10%。" },
+            { id: "m_a2", code: "A2", name: "保加利亞分腿蹲（左腳先做・慢下 3s・左多 1 組）", sets: 4, reps: 8, weight: 60, bodyweight: false, restSec: 90, cue: "左腳做 4 組、右腳做 3 組，下放慢數 3 秒修補 17.9% 煞車落差。" },
+            { id: "m_a3", code: "A3", name: "單腳羅馬尼亞硬舉（左腳先做）", sets: 3, reps: 8, weight: 20, bodyweight: false, restSec: 90, cue: "髖關節往後推到底、骨盆不翻轉，感受腿後側張力。" },
+            { id: "m_a4", code: "A4", name: "懸吊／仰臥抬腿捲骨盆", sets: 3, reps: 10, weight: 0, bodyweight: true, sec: 30, restSec: 75, cue: "頂點將骨盆往上捲，雕刻下腹肌線條。" }
+          ],
+          cooldown: lowerCool
+        };
+      }
+      if (dayKey === "wed") {
+        return {
+          warmup: upperWarm,
+          main: [
+            { id: "m_b1", code: "B1", name: "滑輪機爆發伐木／地雷管旋轉推舉", sets: 4, reps: 6, weight: 15, bodyweight: false, restSec: 90, cue: "後腳蹬地轉髖帶動軀幹爆發推出，模擬扣球動力鏈。" },
+            { id: "m_b2", code: "B2", name: "上斜啞鈴臥推（30 度）", sets: 4, reps: 8, weight: 20, bodyweight: false, restSec: 90, cue: "撐起上胸厚度，肩胛微內收穩定。" },
+            { id: "m_b3", code: "B3", name: "胸托划船機／坐姿滑輪划船", sets: 4, reps: 10, weight: 40, bodyweight: false, restSec: 90, cue: "沉肩夾背拉向肚臍下緣，增加中背厚度。" },
+            { id: "m_b4", code: "B4", name: "引體向上／高位下拉", sets: 3, reps: 8, weight: 17.5, bodyweight: false, restSec: 90, cue: "背闊肌發力帶動手肘下壓，強化扣球下壓力量。" },
+            { id: "m_b5a", code: "B5a", name: "滑輪過頂三頭伸展（超級組）", sets: 3, reps: 12, weight: 12.5, bodyweight: false, restSec: 20, cue: "主攻三頭長頭臂圍，做完喘氣 20 秒接 B5b。" },
+            { id: "m_b5b", code: "B5b", name: "滑輪二頭彎舉（左手先做・多 1 組）", sets: 4, reps: 12, weight: 5, bodyweight: false, restSec: 75, cue: "左手做 4 組、右手做 3 組，平衡雙臂圍度。" },
+            { id: "m_b6", code: "B6", name: "跪姿滑輪捲腹", sets: 3, reps: 15, weight: 17.5, bodyweight: false, restSec: 60, cue: "胸口與骨盆互相靠近捲起腹直肌。" }
+          ],
+          cooldown: upperCool
+        };
+      }
+      if (dayKey === "fri") {
+        return {
+          warmup: lowerWarm.concat(upperWarm),
+          main: [
+            { id: "m_c1", code: "C1", name: "原地腳踝小跳（Pogo Jumps）", sets: 3, reps: 20, weight: 0, bodyweight: true, sec: 20, restSec: 60, cue: "膝蓋微彎鎖定、只用腳踝快速彈起，每組 20 秒。" },
+            { id: "m_c2", code: "C2", name: "無反彈單腳箱上跳下定格（30cm）", sets: 3, reps: 5, weight: 0, bodyweight: true, sec: 3, restSec: 75, cue: "單腳落地瞬間定格 3 秒不晃動，修補 23% 落地不對稱。" },
+            { id: "m_c3a", code: "C3a", name: "啞鈴側平舉（超級組）", sets: 4, reps: 12, weight: 8, bodyweight: false, restSec: 20, cue: "撐寬肩膀視覺厚度，接 C3b 休 20 秒。" },
+            { id: "m_c3b", code: "C3b", name: "臉拉 Face Pull（超級組）", sets: 4, reps: 15, weight: 15, bodyweight: false, restSec: 75, cue: "拉向眉心並外旋手腕，保護扣球肩膀。" },
+            { id: "m_c4a", code: "C4a", name: "啞鈴槌式彎舉（左手先做・多 1 組）", sets: 4, reps: 10, weight: 12, bodyweight: false, restSec: 20, cue: "左手做 4 組、右手做 3 組，強化肱肌與前臂。" },
+            { id: "m_c4b", code: "C4b", name: "仰臥啞鈴三頭伸展（Skull Crusher）", sets: 3, reps: 12, weight: 10, bodyweight: false, restSec: 75, cue: "大臂固定微後傾，下放至頭頂後方再伸直。" },
+            { id: "m_c5", code: "C5", name: "健腹輪", sets: 3, reps: 10, weight: 0, bodyweight: true, restSec: 60, cue: "核心抗伸展不塌腰，雕刻六塊肌。" }
+          ],
+          cooldown: lowerCool.concat(upperCool)
+        };
+      }
+      return {
+        warmup: dayKey === "sat" ? upperWarm : lowerWarm,
+        main: [
+          {
+            id: "m_" + dayKey + "_1",
+            code: dayKey.toUpperCase() + "1",
+            name: dayKey === "sat" ? "側躺開書式伸展＋低強度放鬆" : "賽前神經預熱＋助跑起跳煞車雙腳平衡",
+            sets: 3, reps: 10, weight: 0, bodyweight: true, sec: 30, restSec: 60,
+            cue: dayKey === "sat" ? "輕柔拉開胸椎與緊繃肌群，不追求痠痛。" : "專注起跳煞車雙腳同時踩穩與空中收腹鞭打。"
+          }
+        ],
+        cooldown: dayKey === "sat" ? lowerCool.concat(upperCool) : lowerCool
+      };
+    }
+
+    function createDefaultState() {
+      const today = getTodayISO();
+      const dayKey = getWeekdayKeyFromISO(today);
+
+      const tuePlan = buildDayPlan("tue", false);
+      tuePlan.main[1].sets = 3;
+      const tueChecks = {
+        w_ankle: true, w_wgs: true, w_glute: true,
+        m_a1: true, m_a2: true, m_a3: true, m_a4: true,
+        c_hip: true, c_calf: true, c_quad: true
+      };
+
+      const wedPlan = buildDayPlan("wed", false);
+      const wedChecks = {
+        w_thoracic: true, w_scap: true,
+        m_b1: true, m_b2: true, m_b3: true, m_b4: true, m_b5a: true, m_b5b: true, m_b6: true,
+        c_chest: true, c_lat: true, c_arm: true
+      };
+
+      const state = {
+        activeTab: "workout",
+        selectedDate: today,
+        lightMode: false,
+        outdoorMode: false,
+        poorSleep: false,
+        xp: 361,
+        bodyWeight: 69.4,
+        bodyFat: 16.8,
+        apiKey: "",
+        gasUrl: "",
+        baselines: {
+          "A1": "5×5 @ 80kg",
+          "A2": "3×8 @ 60kg",
+          "A3": "3×8 @ 20kg",
+          "A4": "3×10 @ 徒手",
+          "B1": "4×6 @ 15kg",
+          "B2": "4×8 @ 20kg",
+          "B3": "4×10 @ 40kg",
+          "B4": "3×8 @ 17.5kg",
+          "B5a": "3×12 @ 12.5kg",
+          "B5b": "4×12 @ 5kg",
+          "B6": "3×15 @ 17.5kg"
+        },
+        recordsByDate: {
+          "2026-11-24": {
+            dayKey: "tue",
+            plan: tuePlan,
+            checks: tueChecks,
+            meals: [],
+            water: 2400,
+            creatine: true
+          },
+          "2026-11-25": {
+            dayKey: "wed",
+            plan: wedPlan,
+            checks: wedChecks,
+            meals: [
+              { id: "hist_1125_1", name: "週三全天飲食總結（2026-11-25）", kcal: 2309, pro: 147, carb: 233, fat: 88 }
+            ],
+            water: 2550,
+            creatine: true
+          }
+        }
+      };
+      ensureDateRecord(state, today, dayKey);
+      return state;
+    }
+
+    function ensureDateRecord(st, dateStr, forcedDayKey) {
+      if (!st.recordsByDate[dateStr]) {
+        const dKey = forcedDayKey || getWeekdayKeyFromISO(dateStr);
+        st.recordsByDate[dateStr] = {
+          dayKey: dKey,
+          plan: buildDayPlan(dKey, st.outdoorMode),
+          checks: {},
+          meals: [],
+          water: 0,
+          creatine: false
+        };
+      }
+      return st.recordsByDate[dateStr];
+    }
+
+    let state = loadState();
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem("strong_journal_black_yellow_v7");
+        if (!raw) return createDefaultState();
+        const parsed = Object.assign(createDefaultState(), JSON.parse(raw));
+        ensureDateRecord(parsed, parsed.selectedDate);
+        return parsed;
+      } catch (e) {
+        return createDefaultState();
+      }
+    }
+
+    function saveState() {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+    }
+
+    function getCurrentRecord() {
+      return ensureDateRecord(state, state.selectedDate);
+    }
+
+    function showToast(msg) {
+      const el = document.getElementById("toast");
+      el.textContent = msg;
+      el.classList.add("show");
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(function() { el.classList.remove("show"); }, 2500);
+    }
+
+    let wakeLockSentinel = null;
+    async function requestWakeLock() {
+      try {
+        if ("wakeLock" in navigator && !wakeLockSentinel) {
+          wakeLockSentinel = await navigator.wakeLock.request("screen");
+          wakeLockSentinel.addEventListener("release", function() { wakeLockSentinel = null; });
+        }
+      } catch (e) {}
+    }
+
+    function playBeep(freq, durSec) {
+      try {
+        const Ctx = window.AudioContext || window.webkitAudioContext;
+        if (!Ctx) return;
+        const ctx = new Ctx();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "sine";
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.09, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + durSec);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + durSec);
+      } catch (e) {}
+    }
+
+    function onDateChange(newDate) {
+      if (!newDate) return;
+      state.selectedDate = newDate;
+      ensureDateRecord(state, newDate);
+      saveState();
+      renderAll();
+    }
+
+    function shiftDate(deltaDays) {
+      const parts = state.selectedDate.split("-").map(Number);
+      const dt = new Date(parts[0], parts[1] - 1, parts[2] + deltaDays);
+      const iso = dt.getFullYear() + "-" + String(dt.getMonth() + 1).padStart(2, "0") + "-" + String(dt.getDate()).padStart(2, "0");
+      onDateChange(iso);
+    }
+
+    function changeDayTemplate(newDayKey) {
+      const rec = getCurrentRecord();
+      rec.dayKey = newDayKey;
+      rec.plan = buildDayPlan(newDayKey, state.outdoorMode);
+      rec.checks = {};
+      saveState();
+      renderAll();
+      showToast("已切換當日課表為：" + DAY_META[newDayKey].label);
+    }
+
+    function toggleThemeMode() {
+      state.lightMode = !state.lightMode;
+      document.body.classList.toggle("light-mode", state.lightMode);
+      saveState();
+    }
+
+    function toggleOutdoorMode() {
+      state.outdoorMode = !state.outdoorMode;
+      const rec = getCurrentRecord();
+      rec.plan = buildDayPlan(rec.dayKey, state.outdoorMode);
+      saveState();
+      renderWorkout();
+      showToast(state.outdoorMode ? "已切換室外場無滾筒替代熱身" : "已切換室內健身房熱身");
+    }
+
+    function togglePoorSleep() {
+      state.poorSleep = !state.poorSleep;
+      saveState();
+      renderAll();
+      showToast(state.poorSleep ? "已開啟昨晚沒睡好保護模式" : "已關閉睡眠不足模式");
+    }
+
+    function switchTab(tab) {
+      state.activeTab = tab;
+      ["workout", "nutrition", "progress", "settings"].forEach(function(t) {
+        document.getElementById("tab-" + t).classList.toggle("active", t === tab);
+        document.getElementById("view-" + t).classList.toggle("hidden", t !== tab);
+      });
+      saveState();
+      if (tab === "nutrition") renderNutrition();
+      if (tab === "progress") renderProgress();
+    }
+
+    let activeItemTimer = null;
+
+    function startItemCountdown(btnEl, seconds, labelName) {
+      requestWakeLock();
+      if (activeItemTimer) { clearInterval(activeItemTimer); activeItemTimer = null; }
+      let rem = seconds;
+      btnEl.classList.add("running");
+      btnEl.textContent = rem + "s";
+      activeItemTimer = setInterval(function() {
+        rem--;
+        if (rem > 0 && rem <= 3) playBeep(660, 0.1);
+        if (rem <= 0) {
+          clearInterval(activeItemTimer);
+          activeItemTimer = null;
+          btnEl.classList.remove("running");
+          btnEl.textContent = "⏱️ " + seconds + "s";
+          playBeep(987, 0.25);
+          showToast(labelName + " 計時完成！");
+        } else {
+          btnEl.textContent = rem + "s";
+        }
+      }, 1000);
+    }
+
+    function toggleCheck(stageKey, itemId, restSec) {
+      const rec = getCurrentRecord();
+      const nextVal = !rec.checks[itemId];
+      rec.checks[itemId] = nextVal;
+      if (nextVal) {
+        state.xp += 15;
+        if (stageKey === "main" && restSec) openRestTimer(restSec);
+      }
+      saveState();
+      renderWorkout();
+    }
+
+    function stepMain(itemId, field, delta) {
+      const rec = getCurrentRecord();
+      const item = rec.plan.main.find(function(x) { return x.id === itemId; });
+      if (!item) return;
+      if (field === "sets") item.sets = Math.max(1, Math.min(10, item.sets + delta));
+      if (field === "reps") item.reps = Math.max(1, Math.min(50, item.reps + delta));
+      if (field === "weight") {
+        item.bodyweight = false;
+        item.weight = Math.max(0, Number((item.weight + delta).toFixed(1)));
+      }
+      saveState();
+      renderWorkout();
+    }
+
+    function toggleBodyweight(itemId) {
+      const rec = getCurrentRecord();
+      const item = rec.plan.main.find(function(x) { return x.id === itemId; });
+      if (!item) return;
+      item.bodyweight = !item.bodyweight;
+      saveState();
+      renderWorkout();
+    }
+
+    function applyDeloadToday() {
+      const rec = getCurrentRecord();
+      rec.plan.main.forEach(function(item) {
+        if (item.sets > 2) item.sets -= 1;
+        if (!item.bodyweight && item.weight > 0) {
+          item.weight = Math.max(2.5, Math.round((item.weight * 0.9) * 2) / 2);
+        }
+      });
+      saveState();
+      renderWorkout();
+      showToast("已套用今日降載（減 1 組・降重 10%）");
+    }
+
+    function renderWorkout() {
+      const rec = getCurrentRecord();
+      const meta = DAY_META[rec.dayKey] || DAY_META.thu;
+      document.getElementById("workoutDayTitle").textContent = state.selectedDate + "｜" + meta.title;
+      document.getElementById("workoutDayNote").textContent = meta.note;
+      document.getElementById("warmupModeTag").textContent = state.outdoorMode ? "室外無滾筒模式" : "室內健身房模式";
+
+      document.getElementById("warmupList").innerHTML = rec.plan.warmup.map(function(item) {
+        const done = !!rec.checks[item.id];
+        return '<div class="item-row ' + (done ? "done" : "") + '">' +
+          '<div class="item-top">' +
+            '<button class="check-circle ' + (done ? "checked" : "") + '" onclick="toggleCheck(\'warmup\',\'' + item.id + '\',0)">' + (done ? "✓" : "") + '</button>' +
+            '<div style="flex:1;"><div class="item-name">' + item.name + '</div><div class="item-meta">' + item.meta + '</div></div>' +
+            '<div style="display:flex;gap:5px;">' +
+              '<button class="mini-btn timer-btn" onclick="startItemCountdown(this,' + (item.sec || 35) + ',\'' + item.name + '\')">⏱️ ' + (item.sec || 35) + 's</button>' +
+              '<button class="mini-btn" onclick="document.getElementById(\'cue_' + item.id + '\').classList.toggle(\'hidden\')">要領</button>' +
+            '</div>' +
+          '</div>' +
+          '<div id="cue_' + item.id + '" class="cue-box hidden">' + item.cue + '</div>' +
+        '</div>';
+      }).join("");
+
+      document.getElementById("mainList").innerHTML = rec.plan.main.map(function(item) {
+        const done = !!rec.checks[item.id];
+        const wLabel = item.bodyweight ? "徒手" : (item.weight + " kg");
+        const baseText = state.baselines[item.code] || "尚無基準";
+        return '<div class="item-row ' + (done ? "done" : "") + '">' +
+          '<div class="item-top">' +
+            '<button class="check-circle ' + (done ? "checked" : "") + '" onclick="toggleCheck(\'main\',\'' + item.id + '\',' + (item.restSec || 90) + ')">' + (done ? "✓" : "") + '</button>' +
+            '<div style="flex:1;">' +
+              '<div class="item-name"><span class="code-tag">' + item.code + '</span>' + item.name + '</div>' +
+              '<div class="item-meta">設定：' + item.sets + ' 組 × ' + item.reps + ' 下｜' + wLabel + '（休 ' + (item.restSec || 90) + 's）</div>' +
+            '</div>' +
+            '<div style="display:flex;gap:5px;">' +
+              (item.sec ? '<button class="mini-btn timer-btn" onclick="startItemCountdown(this,' + item.sec + ',\'' + item.code + '\')">⏱️ ' + item.sec + 's</button>' : '') +
+              '<button class="mini-btn" onclick="document.getElementById(\'cue_' + item.id + '\').classList.toggle(\'hidden\')">要領</button>' +
+            '</div>' +
+          '</div>' +
+          '<div class="steppers">' +
+            '<div class="stepper-group"><button onclick="stepMain(\'' + item.id + '\',\'sets\',-1)">-</button><span class="stepper-val">' + item.sets + ' 組</span><button onclick="stepMain(\'' + item.id + '\',\'sets\',1)">+</button></div>' +
+            '<div class="stepper-group"><button onclick="stepMain(\'' + item.id + '\',\'reps\',-1)">-</button><span class="stepper-val">' + item.reps + ' 下</span><button onclick="stepMain(\'' + item.id + '\',\'reps\',1)">+</button></div>' +
+            '<div class="stepper-group"><button onclick="stepMain(\'' + item.id + '\',\'weight\',-2.5)">-</button><span class="stepper-val">' + wLabel + '</span><button onclick="stepMain(\'' + item.id + '\',\'weight\',2.5)">+</button></div>' +
+            '<button class="mini-btn" onclick="toggleBodyweight(\'' + item.id + '\')">' + (item.bodyweight ? "改負重" : "徒手") + '</button>' +
+            '<span class="last-badge">基準：' + baseText + '</span>' +
+          '</div>' +
+          '<div id="cue_' + item.id + '" class="cue-box hidden">' + item.cue + '</div>' +
+        '</div>';
+      }).join("");
+
+      document.getElementById("cooldownList").innerHTML = rec.plan.cooldown.map(function(item) {
+        const done = !!rec.checks[item.id];
+        return '<div class="item-row ' + (done ? "done" : "") + '">' +
+          '<div class="item-top">' +
+            '<button class="check-circle ' + (done ? "checked" : "") + '" onclick="toggleCheck(\'cooldown\',\'' + item.id + '\',0)">' + (done ? "✓" : "") + '</button>' +
+            '<div style="flex:1;"><div class="item-name">' + item.name + '</div><div class="item-meta">' + item.meta + '</div></div>' +
+            '<div style="display:flex;gap:5px;">' +
+              '<button class="mini-btn timer-btn" onclick="startItemCountdown(this,' + (item.sec || 35) + ',\'' + item.name + '\')">⏱️ ' + (item.sec || 35) + 's</button>' +
+              '<button class="mini-btn" onclick="document.getElementById(\'cue_' + item.id + '\').classList.toggle(\'hidden\')">要領</button>' +
+            '</div>' +
+          '</div>' +
+          '<div id="cue_' + item.id + '" class="cue-box hidden">' + item.cue + '</div>' +
+        '</div>';
+      }).join("");
+    }
+
+    function toggleCodeBox() { document.getElementById("codeBox").classList.toggle("hidden"); }
+
+    function parseAndApplyCodes() {
+      const rec = getCurrentRecord();
+      const raw = document.getElementById("codeInput").value || "";
+      const chunks = raw.split(/[\/\r\n]+/).map(function(s) { return s.trim(); }).filter(Boolean);
+      let applied = 0;
+      chunks.forEach(function(chunk) {
+        const m = chunk.match(/^([A-C]\d+[a-b]?)/i);
+        if (!m) return;
+        const code = m[1].toUpperCase();
+        const item = rec.plan.main.find(function(x) { return x.code.toUpperCase() === code; });
+        if (!item) return;
+        const sr = chunk.match(/(\d+)\s*[\*x×]\s*(\d+)/);
+        if (sr) { item.sets = parseInt(sr[1], 10); item.reps = parseInt(sr[2], 10); }
+        if (chunk.indexOf("徒手") !== -1) {
+          item.bodyweight = true;
+        } else {
+          const tail = chunk.replace(m[0], "").replace(/\d+\s*[\*x×]\s*\d+/, "");
+          const wm = tail.match(/(\d+(?:\.\d+)?)\s*(?:kg)?/i);
+          if (wm) { item.bodyweight = false; item.weight = parseFloat(wm[1]); }
+        }
+        rec.checks[item.id] = true;
+        applied++;
+      });
+      saveState();
+      renderWorkout();
+      showToast(applied ? ("已套用 " + applied + " 項代號紀錄") : "未辨識到符合當日課表的代號");
+    }
+
+    let restInterval = null;
+    let restRemain = 0;
+
+    function openRestTimer(seconds) {
+      requestWakeLock();
+      restRemain = seconds;
+      document.getElementById("floatingRest").classList.add("show");
+      updateRestLabel();
+      if (restInterval) clearInterval(restInterval);
+      restInterval = setInterval(function() {
+        restRemain--;
+        updateRestLabel();
+        if (restRemain > 0 && restRemain <= 3) playBeep(660, 0.1);
+        if (restRemain <= 0) {
+          clearInterval(restInterval);
+          restInterval = null;
+          playBeep(987, 0.25);
+          showToast("組間休息結束！");
+          setTimeout(function() { document.getElementById("floatingRest").classList.remove("show"); }, 1000);
+        }
+      }, 1000);
+    }
+
+    function adjustRest(delta) { restRemain = Math.max(5, restRemain + delta); updateRestLabel(); }
+    function closeRestTimer() { if (restInterval) clearInterval(restInterval); restInterval = null; document.getElementById("floatingRest").classList.remove("show"); }
+    function updateRestLabel() {
+      document.getElementById("restCountdownText").textContent =
+        String(Math.floor(restRemain / 60)).padStart(2, "0") + ":" + String(restRemain % 60).padStart(2, "0");
+    }
+
+    /* ===== 食物圖片處理（自動壓縮＋預覽＋刪除） ===== */
+    let selectedImageBase64 = null;
+    let selectedImageMime = "image/jpeg";
+
+    function compressImageToBase64(file, callback) {
+      const reader = new FileReader();
+      reader.onload = function(ev) {
+        const dataUrl = String(ev.target.result || "");
+        const img = new Image();
+        img.onload = function() {
+          const maxDim = 1024;
+          let w = img.width;
+          let h = img.height;
+          if (w > maxDim || h > maxDim) {
+            if (w >= h) { h = Math.round(h * maxDim / w); w = maxDim; }
+            else { w = Math.round(w * maxDim / h); h = maxDim; }
+          }
+          const canvas = document.createElement("canvas");
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, w, h);
+          const compressedUrl = canvas.toDataURL("image/jpeg", 0.8);
+          callback(compressedUrl);
+        };
+        img.onerror = function() { callback(dataUrl); };
+        img.src = dataUrl;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function onFoodImageSelected(input) {
+      const file = input.files && input.files[0];
+      if (!file) return;
+      compressImageToBase64(file, function(compressedDataUrl) {
+        selectedImageMime = "image/jpeg";
+        selectedImageBase64 = compressedDataUrl.split(",")[1] || null;
+        document.getElementById("aiImageThumb").src = compressedDataUrl;
+        document.getElementById("aiImagePreviewName").textContent = file.name;
+        document.getElementById("aiImagePreviewBox").classList.remove("hidden");
+        showToast("已附加並壓縮餐點照片");
+      });
+    }
+
+    function clearFoodImage() {
+      selectedImageBase64 = null;
+      selectedImageMime = "image/jpeg";
+      const fileInput = document.getElementById("aiFoodFile");
+      if (fileInput) fileInput.value = "";
+      document.getElementById("aiImageThumb").src = "";
+      document.getElementById("aiImagePreviewName").textContent = "";
+      document.getElementById("aiImagePreviewBox").classList.add("hidden");
+      showToast("已移除附加照片");
+    }
+
+    /* ===== 優先呼叫 gemini-3.8-flash 並依序嘗試新世代可用模型 ===== */
+    let activeModelName = null;
+
+    async function getCandidateModels(key) {
+      const candidates = [
+        "models/gemini-3.8-flash",
+        "models/gemini-3.8-flash-lite",
+        "models/gemini-3.5-flash",
+        "models/gemini-3.0-flash"
+      ];
+      try {
+        const resp = await fetch("https://generativelanguage.googleapis.com/v1beta/models?key=" + encodeURIComponent(key));
+        const data = await resp.json();
+        if (resp.ok && data && Array.isArray(data.models)) {
+          data.models.forEach(function(m) {
+            const methods = m.supportedGenerationMethods || [];
+            const n = (m.name || "").toLowerCase();
+            if (
+              methods.indexOf("generateContent") !== -1 &&
+              n.indexOf("flash") !== -1 &&
+              n.indexOf("2.5") === -1 &&
+              n.indexOf("2.0") === -1 &&
+              n.indexOf("1.5") === -1 &&
+              n.indexOf("tts") === -1 &&
+              n.indexOf("audio") === -1 &&
+              n.indexOf("image") === -1 &&
+              candidates.indexOf(m.name) === -1
+            ) {
+              candidates.push(m.name);
+            }
+          });
+        }
+      } catch (e) {}
+      return candidates;
+    }
+
+    async function callGeminiLatest(key, parts) {
+      const list = activeModelName ? [activeModelName] : await getCandidateModels(key);
+      let lastErr = "無法連線至 Gemini 模型";
+
+      for (let i = 0; i < list.length; i++) {
+        const modelRes = list[i];
+        const url = "https://generativelanguage.googleapis.com/v1beta/" + modelRes + ":generateContent?key=" + encodeURIComponent(key);
+        const resp = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ contents: [{ parts: parts }] })
+        });
+        const data = await resp.json();
+        if (resp.ok && data && data.candidates && data.candidates[0]) {
+          activeModelName = modelRes;
+          return {
+            model: modelRes,
+            text: (data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0] && data.candidates[0].content.parts[0].text) || ""
+          };
+        }
+        activeModelName = null;
+        lastErr = (data && data.error && data.error.message) ? data.error.message : ("HTTP " + resp.status);
+        // 若是 API Key 本身錯誤則直接停止重試
+        if (lastErr.toLowerCase().indexOf("api key not valid") !== -1) break;
+      }
+      throw new Error(lastErr);
+    }
+
+    async function testGeminiKey() {
+      const key = (document.getElementById("apiKeyInput").value || state.apiKey || "").trim();
+      if (!key) { showToast("請先貼上 API Key"); return; }
+      state.apiKey = key;
+      activeModelName = null;
+      saveState();
+      const box = document.getElementById("keyTestResult");
+      box.style.color = "var(--text-muted)";
+      box.textContent = "連線測試中（gemini-3.8-flash）...";
+      try {
+        const res = await callGeminiLatest(key, [{ text: "請只回覆 OK" }]);
+        box.style.color = "var(--green)";
+        box.textContent = "✅ 連線成功！使用模型：" + res.model.replace("models/", "") + "（回應：" + res.text.trim() + "）";
+      } catch (e) {
+        box.style.color = "var(--rose)";
+        box.textContent = "❌ 連線失敗：" + e.message;
+      }
+    }
+
+    async function analyzeFoodWithGemini() {
+      const key = (state.apiKey || "").trim();
+      if (!key) {
+        showToast("請先到「☁️ 雲端設定」貼上獨立 Gemini API Key");
+        switchTab("settings");
+        return;
+      }
+      const desc = (document.getElementById("aiFoodText").value || "").trim();
+      if (!desc && !selectedImageBase64) {
+        showToast("請輸入食物描述或選擇餐點照片");
+        return;
+      }
+
+      const btn = document.getElementById("btnAnalyzeFood");
+      const box = document.getElementById("aiFoodResultBox");
+      btn.disabled = true;
+      btn.textContent = "分析中...";
+
+      const prompt = '你是台灣運動營養師。請分析這份餐點的營養素，僅回傳純 JSON（不要 markdown 標記），格式為：{"name":"餐點名稱","kcal":數字,"pro":蛋白質克數,"carb":碳水克數,"fat":脂肪克數,"tip":"給目標體脂16.8%降到12%的排球運動員一句簡短止損或搭配建議"} 餐點描述：' + (desc || "請根據圖片辨識食物與份量");
+
+      const parts = [{ text: prompt }];
+      if (selectedImageBase64) {
+        parts.push({ inline_data: { mime_type: selectedImageMime, data: selectedImageBase64 } });
+      }
+
+      try {
+        const res = await callGeminiLatest(key, parts);
+        const jsonMatch = res.text.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) throw new Error("AI 回傳格式無法解析：" + res.text.slice(0, 60));
+        const parsed = JSON.parse(jsonMatch[0]);
+
+        const rec = getCurrentRecord();
+        rec.meals.push({
+          id: "ai_" + Date.now(),
+          name: parsed.name || desc || "AI 分析餐點",
+          kcal: Number(parsed.kcal) || 0,
+          pro: Number(parsed.pro) || 0,
+          carb: Number(parsed.carb) || 0,
+          fat: Number(parsed.fat) || 0
+        });
+        state.xp += 15;
+        saveState();
+
+        box.className = "banner ok";
+        box.classList.remove("hidden");
+        box.innerHTML = "<div><strong>已自動加入：" + parsed.name + "</strong>（" + parsed.kcal + " kcal｜蛋白 " + parsed.pro + "g｜碳水 " + parsed.carb + "g｜脂肪 " + parsed.fat + "g）<br/><span>💡 " + (parsed.tip || "") + "</span></div>";
+
+        document.getElementById("aiFoodText").value = "";
+        clearFoodImage();
+        renderNutrition();
+        showToast("AI 分析完成並已加入今日三餐");
+      } catch (err) {
+        box.className = "banner warn";
+        box.classList.remove("hidden");
+        box.innerHTML = "<div><strong>AI 分析失敗：</strong>" + (err.message || "請確認 API Key 或網路") + "<br/><span>若暫時不想用 API，可直接點下方「零額度外食快選」一鍵記錄。</span></div>";
+        showToast("AI 分析失敗，請查看下方原因");
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "✨ AI 分析";
+      }
+    }
+
+    function renderQuickChips() {
+      document.getElementById("quickFoodChips").innerHTML = QUICK_FOODS.map(function(f, idx) {
+        return '<button class="food-chip" onclick="addQuickFood(' + idx + ')">+ ' + f.name + '（' + f.kcal + 'kcal / ' + f.pro + 'g蛋）</button>';
+      }).join("");
+    }
+
+    function addQuickFood(idx) {
+      const f = QUICK_FOODS[idx];
+      const rec = getCurrentRecord();
+      rec.meals.push({ id: "qf_" + Date.now() + "_" + idx, name: f.name, kcal: f.kcal, pro: f.pro, carb: f.carb, fat: f.fat });
+      state.xp += 10;
+      saveState();
+      renderNutrition();
+      showToast("已加入 " + f.name);
+    }
+
+    function addCustomMeal() {
+      const rec = getCurrentRecord();
+      const name = (document.getElementById("mealName").value || "").trim() || "自訂餐點";
+      const kcal = parseFloat(document.getElementById("mealKcal").value) || 0;
+      const pro  = parseFloat(document.getElementById("mealPro").value) || 0;
+      const carb = parseFloat(document.getElementById("mealCarb").value) || 0;
+      const fat  = parseFloat(document.getElementById("mealFat").value) || 0;
+      rec.meals.push({ id: "cm_" + Date.now(), name: name, kcal: kcal, pro: pro, carb: carb, fat: fat });
+      ["mealName", "mealKcal", "mealPro", "mealCarb", "mealFat"].forEach(function(id) { document.getElementById(id).value = ""; });
+      saveState();
+      renderNutrition();
+      showToast("已加入 " + name);
+    }
+
+    function deleteMeal(id) {
+      const rec = getCurrentRecord();
+      rec.meals = rec.meals.filter(function(m) { return m.id !== id; });
+      saveState();
+      renderNutrition();
+    }
+
+    function clearTodayMeals() {
+      getCurrentRecord().meals = [];
+      saveState();
+      renderNutrition();
+    }
+
+    function addWater(ml) { getCurrentRecord().water += ml; saveState(); renderNutrition(); }
+    function resetWater() { getCurrentRecord().water = 0; saveState(); renderNutrition(); }
+    function toggleCreatine(val) { getCurrentRecord().creatine = val; saveState(); }
+
+    function makeRingSvg(pct, color) {
+      const r = 20, c = 2 * Math.PI * r;
+      const dash = (Math.max(0, Math.min(1, pct)) * c).toFixed(1);
+      return '<svg width="48" height="48" viewBox="0 0 48 48">' +
+        '<circle cx="24" cy="24" r="' + r + '" fill="none" stroke="rgba(161,161,170,0.22)" stroke-width="5"/>' +
+        '<circle cx="24" cy="24" r="' + r + '" fill="none" stroke="' + color + '" stroke-width="5" stroke-dasharray="' + dash + ' ' + c.toFixed(1) + '" stroke-linecap="round" transform="rotate(-90 24 24)"/>' +
+      '</svg>';
+    }
+
+    function renderNutrition() {
+      const rec = getCurrentRecord();
+      const meta = DAY_META[rec.dayKey] || DAY_META.thu;
+      const tot = rec.meals.reduce(function(a, m) {
+        return {
+          kcal: a.kcal + (m.kcal || 0),
+          pro: a.pro + (m.pro || 0),
+          carb: a.carb + (m.carb || 0),
+          fat: a.fat + (m.fat || 0)
+        };
+      }, { kcal: 0, pro: 0, carb: 0, fat: 0 });
+
+      const remKcal = Math.round(meta.kcal - tot.kcal);
+      const remPro  = Math.round(meta.pro - tot.pro);
+      const remCarb = Math.round(meta.carb - tot.carb);
+      const remFat  = Math.round(meta.fat - tot.fat);
+
+      document.getElementById("cycleTypeTag").textContent = rec.dayKey === "sat" ? "週六低碳休息日" : "訓練／打球日";
+      document.getElementById("nutritionTargetTitle").textContent = state.selectedDate + " 營養額度（目標 " + meta.kcal + " kcal / " + meta.pro + "g 蛋）";
+
+      const cards = [
+        { label: "剩餘熱量", rem: remKcal + " kcal", sub: Math.round(tot.kcal) + " / " + meta.kcal, pct: tot.kcal / meta.kcal, color: remKcal < 0 ? "#F43F5E" : "#FACC15" },
+        { label: "剩餘蛋白", rem: Math.max(0, remPro) + " g", sub: Math.round(tot.pro) + " / " + meta.pro + "g", pct: tot.pro / meta.pro, color: "#22C55E" },
+        { label: "剩餘碳水", rem: remCarb + " g", sub: Math.round(tot.carb) + " / " + meta.carb + "g", pct: tot.carb / meta.carb, color: "#38BDF8" },
+        { label: "剩餘脂肪", rem: remFat + " g", sub: Math.round(tot.fat) + " / " + meta.fat + "g", pct: tot.fat / meta.fat, color: remFat < 0 ? "#F43F5E" : "#F59E0B" }
+      ];
+
+      document.getElementById("ringsGrid").innerHTML = cards.map(function(c) {
+        return '<div class="ring-card">' + makeRingSvg(c.pct, c.color) +
+          '<div><div class="ring-label">' + c.label + '</div><div class="ring-rem">' + c.rem + '</div><div class="ring-sub">' + c.sub + '</div></div>' +
+        '</div>';
+      }).join("");
+
+      const adviceBox = document.getElementById("supplyAdviceBox");
+      if (remPro > 20 && remFat <= 12) {
+        const packs = Math.max(1, Math.ceil(remPro / 26));
+        adviceBox.className = "banner warn";
+        adviceBox.innerHTML = "<div><strong>低脂補蛋白警報：</strong>蛋白質還差 <b>" + remPro + "g</b> 且脂肪額度吃緊，建議補 <b>" + packs + " 份舒肥雞胸肉或水解乳清</b>，避開油炸與勾芡。</div>";
+      } else if (remPro > 20) {
+        adviceBox.className = "banner info";
+        adviceBox.innerHTML = "<div><strong>補給建議：</strong>蛋白質還差 <b>" + remPro + "g</b>，可搭配雞胸、豆漿或乳清補齊；碳水剩 <b>" + remCarb + "g</b>。</div>";
+      } else {
+        adviceBox.className = "banner ok";
+        adviceBox.innerHTML = "<div><strong>蛋白質達標：</strong>已守住肌肉合成需求，剩餘 <b>" + remKcal + " kcal</b> 額度可彈性安排。</div>";
+      }
+
+      document.getElementById("creatineCheck").checked = !!rec.creatine;
+      document.getElementById("waterLabel").textContent = "飲水：" + (rec.water || 0) + " / 3000 ml";
+
+      document.getElementById("mealsList").innerHTML = rec.meals.length
+        ? rec.meals.map(function(m) {
+            return '<div class="meal-item">' +
+              '<div><b>' + m.name + '</b><div class="item-meta">' + Math.round(m.kcal) + ' kcal｜蛋白 ' + Math.round(m.pro) + 'g｜碳水 ' + Math.round(m.carb) + 'g｜脂肪 ' + Math.round(m.fat) + 'g</div></div>' +
+              '<button class="mini-btn" onclick="deleteMeal(\'' + m.id + '\')">刪除</button>' +
+            '</div>';
+          }).join("")
+        : '<div class="item-meta">尚無餐點紀錄，可使用上方 AI 分析或零額度快選。</div>';
+    }
+
+    function updateBodyMetrics() {
+      state.bodyWeight = parseFloat(document.getElementById("curWeightInput").value) || 69.4;
+      state.bodyFat = parseFloat(document.getElementById("curBfInput").value) || 16.8;
+      saveState();
+      renderProgress();
+      showToast("已更新最新體重與體脂率");
+    }
+
+    function renderProgress() {
+      document.getElementById("xpHeaderBadge").textContent = "Lv.3 扣球重砲手 · " + state.xp + " XP";
+      document.getElementById("curWeightInput").value = state.bodyWeight;
+      document.getElementById("curBfInput").value = state.bodyFat;
+
+      const startBf = 16.8, targetBf = 12.0;
+      const pct = Math.max(0, Math.min(100, Math.round(((startBf - state.bodyFat) / (startBf - targetBf)) * 100)));
+      document.getElementById("bfProgFill").style.width = pct + "%";
+      document.getElementById("bfProgText").textContent = "目前體重 " + state.bodyWeight + " kg｜體脂 " + state.bodyFat + "%（距離 12.0% 腹肌目標已完成 " + pct + "%）";
+
+      const dates = Object.keys(state.recordsByDate).sort().reverse();
+      document.getElementById("historyDatesList").innerHTML = dates.map(function(dt) {
+        const r = state.recordsByDate[dt];
+        const doneCount = Object.values(r.checks || {}).filter(Boolean).length;
+        const kcalSum = Math.round((r.meals || []).reduce(function(s, m) { return s + (m.kcal || 0); }, 0));
+        const lbl = (DAY_META[r.dayKey] && DAY_META[r.dayKey].label) || "";
+        return '<div class="meal-item" style="cursor:pointer;" onclick="onDateChange(\'' + dt + '\');switchTab(\'workout\');">' +
+          '<div><b>' + dt + '</b>（' + lbl + '）<div class="item-meta">完成 ' + doneCount + ' 項清單｜攝取 ' + kcalSum + ' kcal｜飲水 ' + (r.water || 0) + ' ml</div></div>' +
+          '<span class="mini-btn">開啟</span>' +
+        '</div>';
+      }).join("");
+    }
+
+    function saveApiKey() {
+      state.apiKey = (document.getElementById("apiKeyInput").value || "").trim();
+      activeModelName = null;
+      saveState();
+      showToast("已儲存獨立 Gemini API Key");
+    }
+
+    function saveGasUrl() {
+      state.gasUrl = (document.getElementById("gasUrlInput").value || "").trim();
+      saveState();
+      showToast("已儲存 Google 試算表同步網址");
+    }
+
+    function toggleGasCode() { document.getElementById("gasCodeBox").classList.toggle("hidden"); }
+
+    async function syncToGoogleSheet() {
+      if (!state.gasUrl) { showToast("請先填入 Google Apps Script 網址"); return; }
+      const badge = document.getElementById("syncStatusBadge");
+      badge.textContent = "同步上傳中...";
+      try {
+        await fetch(state.gasUrl, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({ date: state.selectedDate, payload: state })
+        });
+        badge.textContent = "已送出雲端同步 ✓";
+        badge.classList.add("ok");
+        showToast("已同步至 Google 試算表");
+      } catch (e) {
+        badge.textContent = "同步失敗";
+        showToast("同步失敗，請檢查網址權限");
+      }
+    }
+
+    async function pullFromGoogleSheet() {
+      if (!state.gasUrl) { showToast("請先填入 Google Apps Script 網址"); return; }
+      const badge = document.getElementById("syncStatusBadge");
+      badge.textContent = "從雲端拉取中...";
+      try {
+        const resp = await fetch(state.gasUrl);
+        const data = await resp.json();
+        if (data && data.ok && data.payload) {
+          const keepKey = state.apiKey;
+          const keepUrl = state.gasUrl;
+          state = Object.assign(createDefaultState(), data.payload);
+          if (!state.apiKey) state.apiKey = keepKey;
+          if (!state.gasUrl) state.gasUrl = keepUrl;
+          saveState();
+          renderAll();
+          badge.textContent = "已載入雲端最新 ✓";
+          badge.classList.add("ok");
+          showToast("已從 Google 試算表還原最新紀錄");
+        } else {
+          badge.textContent = "雲端尚無資料";
+        }
+      } catch (e) {
+        badge.textContent = "讀取失敗";
+        showToast("讀取失敗，請確認 Apps Script 已部署為所有人可存取");
+      }
+    }
+
+    function exportBackupCode() {
+      const code = JSON.stringify(state);
+      document.getElementById("backupCodeBox").value = code;
+      copyTextSafe(code, "已匯出並複製完整存檔碼");
+    }
+
+    function importBackupCode() {
+      try {
+        const raw = (document.getElementById("backupCodeBox").value || "").trim();
+        const parsed = JSON.parse(raw);
+        state = Object.assign(createDefaultState(), parsed);
+        saveState();
+        renderAll();
+        showToast("已成功還原存檔！");
+      } catch (e) {
+        showToast("存檔碼格式不正確");
+      }
+    }
+
+    function saveAndSyncAll() {
+      const rec = getCurrentRecord();
+      rec.plan.main.forEach(function(item) {
+        state.baselines[item.code] = item.sets + "×" + item.reps + " @ " + (item.bodyweight ? "徒手" : (item.weight + "kg"));
+      });
+      state.xp += 20;
+      saveState();
+      renderWorkout();
+      if (state.gasUrl) syncToGoogleSheet();
+      else showToast("已儲存當日紀錄並更新動作基準！");
+    }
+
+    function copyFullSummary() {
+      const rec = getCurrentRecord();
+      const meta = DAY_META[rec.dayKey] || DAY_META.thu;
+      const tot = rec.meals.reduce(function(a, m) {
+        return {
+          kcal: a.kcal + (m.kcal || 0),
+          pro: a.pro + (m.pro || 0),
+          carb: a.carb + (m.carb || 0),
+          fat: a.fat + (m.fat || 0)
+        };
+      }, { kcal: 0, pro: 0, carb: 0, fat: 0 });
+
+      const mainLines = rec.plan.main.map(function(m) {
+        return (rec.checks[m.id] ? "[✓] " : "[ ] ") + m.code + " " + m.name + "：" + m.sets + "×" + m.reps + " @ " + (m.bodyweight ? "徒手" : (m.weight + "kg"));
+      });
+
+      const lines = [
+        "【" + state.selectedDate + "｜" + meta.title + "】",
+        "睡眠狀態：" + (state.poorSleep ? "昨晚沒睡好（保護模式）" : "正常") + "｜體重 " + state.bodyWeight + "kg / 體脂 " + state.bodyFat + "%",
+        "",
+        "■ 主課表紀錄"
+      ].concat(mainLines).concat([
+        "",
+        "■ 今日營養與補給",
+        "熱量：" + Math.round(tot.kcal) + " / " + meta.kcal + " kcal｜蛋白：" + Math.round(tot.pro) + " / " + meta.pro + "g｜碳水：" + Math.round(tot.carb) + " / " + meta.carb + "g｜脂肪：" + Math.round(tot.fat) + " / " + meta.fat + "g",
+        "飲水：" + (rec.water || 0) + " / 3000 ml｜肌酸 5g：" + (rec.creatine ? "已補" : "未補")
+      ]);
+
+      copyTextSafe(lines.join("\n"), "已複製今日結算！");
+    }
+
+    function renderAll() {
+      document.body.classList.toggle("light-mode", !!state.lightMode);
+      document.getElementById("btnOutdoor").classList.toggle("active-accent", !!state.outdoorMode);
+      document.getElementById("btnSleepPoor").classList.toggle("active-warn", !!state.poorSleep);
+      document.getElementById("poorSleepWorkoutBanner").classList.toggle("hidden", !state.poorSleep);
+      document.getElementById("poorSleepDietBanner").classList.toggle("hidden", !state.poorSleep);
+
+      const rec = getCurrentRecord();
+      document.getElementById("datePicker").value = state.selectedDate;
+      document.getElementById("dayTemplateSelect").value = rec.dayKey;
+      document.getElementById("apiKeyInput").value = state.apiKey || "";
+      document.getElementById("gasUrlInput").value = state.gasUrl || "";
+
+      renderWorkout();
+      renderQuickChips();
+      renderNutrition();
+      renderProgress();
+      switchTab(state.activeTab || "workout");
+    }
+
+    renderAll();
+  </script>
+</body>
+</html>
