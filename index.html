@@ -172,9 +172,10 @@
     .item-row {
       background: var(--surface-2); border: 1px solid var(--border);
       border-radius: 12px; padding: 11px 12px; margin-bottom: 8px;
+      transition: opacity 0.2s ease, border-color 0.2s ease;
     }
     .item-row:last-child { margin-bottom: 0; }
-    .item-row.done { opacity: 0.65; }
+    .item-row.done { opacity: 0.72; border-color: rgba(34, 197, 94, 0.45); }
     .item-row.done .item-name { text-decoration: line-through; color: var(--text-muted); }
 
     .item-top { display: flex; align-items: flex-start; gap: 10px; }
@@ -186,6 +187,59 @@
       font-size: 0.85rem; font-weight: 900; cursor: pointer; margin-top: 1px;
     }
     .check-circle.checked { background: var(--accent); border-color: var(--accent); }
+
+    /* 每組獨立圓圈記號區 */
+    .set-bubbles-bar {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 9px;
+      padding-top: 8px;
+      border-top: 1px dashed var(--border);
+    }
+    .set-bubbles-label {
+      font-size: 0.72rem;
+      font-weight: 800;
+      color: var(--text-muted);
+      margin-right: 2px;
+    }
+    .set-bubble {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 2px solid var(--accent);
+      background: var(--surface);
+      color: var(--accent);
+      font-size: 0.78rem;
+      font-weight: 900;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.1s ease, background 0.15s ease, color 0.15s ease;
+    }
+    .set-bubble:active { transform: scale(0.92); }
+    .set-bubble.done {
+      background: var(--accent);
+      color: var(--accent-text);
+      box-shadow: 0 0 0 2px rgba(250, 204, 21, 0.25);
+    }
+    .set-status-pill {
+      margin-left: auto;
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: var(--surface);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+    }
+    .set-status-pill.all-done {
+      background: var(--green-soft);
+      color: var(--green);
+      border-color: rgba(34, 197, 94, 0.4);
+    }
 
     .code-tag {
       background: var(--accent); color: var(--accent-text);
@@ -204,7 +258,7 @@
     .mini-btn.timer-btn.running { background: var(--rose); border-color: var(--rose); color: #FFFFFF; }
 
     .steppers {
-      margin-top: 9px; padding-top: 9px; border-top: 1px dashed var(--border);
+      margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--border);
       display: flex; flex-wrap: wrap; align-items: center; gap: 7px;
     }
 
@@ -352,7 +406,7 @@
     <nav class="main-tabs">
       <button id="tab-workout" class="tab-btn active" onclick="switchTab('workout')">
         <span>💪 訓練清單</span>
-        <span class="tab-sub">熱身・主課・收操</span>
+        <span class="tab-sub">逐組記號・計時</span>
       </button>
       <button id="tab-nutrition" class="tab-btn" onclick="switchTab('nutrition')">
         <span>🥗 飲食 AI</span>
@@ -408,7 +462,7 @@
       <div class="stage-box main">
         <div class="stage-head">
           <span class="card-title">🏋️ 階段二：重訓／專項主課表</span>
-          <span class="stage-badge">弱側先做・勾選自動跳休息計時</span>
+          <span class="stage-badge">做完一組點一顆圈・自動計時休息</span>
         </div>
         <div id="mainList"></div>
       </div>
@@ -636,7 +690,7 @@ function doGet(e) {
   </div>
 
   <script>
-    const STORAGE_KEY = "strong_journal_complete_v14";
+    const STORAGE_KEY = "strong_journal_complete_v15";
 
     const DAY_META = {
       mon: { label: "週一", title: "週一｜晚上排球實戰", note: "白天恢復為主，賽前 15 分鐘做好腳踝與髖關節動態熱身。", type: "ball", kcal: 2400, pro: 150, carb: 250, fat: 65 },
@@ -705,35 +759,37 @@ function doGet(e) {
 
     function buildDayPlan(dayKey, outdoorMode) {
       const lowerWarm = [
-        { id: "w_ankle", name: "腳踝活動度前推", meta: "每腳 10 下", sec: 40, cue: "高跪姿、前腳掌踩實，膝蓋往腳尖正前方推到底再退回。" },
-        { id: "w_wgs", name: "世界最偉大伸展", meta: "每邊 5 下", sec: 45, cue: "大弓箭步手肘下沉後轉身開胸，啟動髖屈肌與胸椎。" },
-        { id: "w_glute", name: "單腳臀橋（左腳先做）", meta: "每腳 8 下・頂點停 1s", sec: 40, cue: "先喚醒較弱的左臀肌，減少起跳煞車與落地代償。" }
+        { id: "w_ankle", name: "腳踝活動度前推", meta: "每腳 10 下（左右各 1 組）", sets: 2, sec: 40, cue: "高跪姿、前腳掌踩實，膝蓋往腳尖正前方推到底再退回。" },
+        { id: "w_wgs", name: "世界最偉大伸展", meta: "每邊 5 下（左右各 1 組）", sets: 2, sec: 45, cue: "大弓箭步手肘下沉後轉身開胸，啟動髖屈肌與胸椎。" },
+        { id: "w_glute", name: "單腳臀橋（左腳先做）", meta: "每腳 8 下・頂點停 1s（左右各 1 組）", sets: 2, sec: 40, cue: "先喚醒較弱的左臀肌，減少起跳煞車與落地代償。" }
       ];
       const upperWarm = [
         {
           id: "w_thoracic",
           name: outdoorMode ? "四足跪姿穿針引線（無滾筒替代）" : "滾筒胸椎伸展",
-          meta: "每邊 8 次",
+          meta: "每邊 8 次（左右各 1 組）",
+          sets: 2,
           sec: 40,
           cue: outdoorMode ? "室外無滾筒時以四足跪姿單手穿過腋下轉動上背，打開扣球拉弓幅度。" : "滾筒置於肩胛骨下緣，後仰開胸不拱腰。"
         },
-        { id: "w_scap", name: "肩胛伏地挺身＋肩外旋啟動", meta: "各 10–12 下", sec: 45, cue: "啟動肩袖與肩胛穩定肌群，保護推舉與扣球揮臂。" }
+        { id: "w_scap", name: "肩胛伏地挺身＋肩外旋啟動", meta: "各 10–12 下（2 組）", sets: 2, sec: 45, cue: "啟動肩袖與肩胛穩定肌群，保護推舉與扣球揮臂。" }
       ];
       const lowerCool = [
-        { id: "c_hip", name: outdoorMode ? "站姿大弓箭步髖屈肌伸展（無滾筒/硬地替代）" : "跪姿髖屈肌伸展", meta: "每側 35 秒", sec: 35, cue: "骨盆微後傾夾緊臀部、重心微前推，減輕髕骨肌腱拉力。" },
-        { id: "c_calf", name: "靠牆小腿雙角度伸展", meta: "直膝＋微蹲各 30 秒", sec: 30, cue: "後腳跟踩實地面，舒緩起跳與落地的阿基里斯腱。" },
+        { id: "c_hip", name: outdoorMode ? "站姿大弓箭步髖屈肌伸展（無滾筒/硬地替代）" : "跪姿髖屈肌伸展", meta: "每側 35 秒（左右各 1 組）", sets: 2, sec: 35, cue: "骨盆微後傾夾緊臀部、重心微前推，減輕髕骨肌腱拉力。" },
+        { id: "c_calf", name: "靠牆小腿雙角度伸展", meta: "直膝＋微蹲各 30 秒（2 組）", sets: 2, sec: 30, cue: "後腳跟踩實地面，舒緩起跳與落地的阿基里斯腱。" },
         {
           id: "c_quad",
           name: outdoorMode ? "站姿動態股四頭輕拉＋4 字臀肌伸展" : "滾筒低強度放鬆（股四頭＋臀肌）",
-          meta: "每側 40 秒",
+          meta: "每側 40 秒（左右各 1 組）",
+          sets: 2,
           sec: 40,
           cue: outdoorMode ? "手扶牆或網柱輕拉 3 秒微放 1 秒，不弄髒衣服又能加速排酸。" : "輕慢滾動大腿前側與臀肌促進循環，勿死壓痛點。"
         }
       ];
       const upperCool = [
-        { id: "c_chest", name: "牆柱／深蹲架單臂胸肌伸展", meta: "每側 35 秒", sec: 35, cue: "前臂貼立柱微轉身拉開胸大肌，避免圓肩限制扣球。" },
-        { id: "c_lat", name: "跪姿背闊肌伸展", meta: "35 秒", sec: 35, cue: "雙手前伸臀部坐向腳跟，拉長扣球下壓主力肌群。" },
-        { id: "c_arm", name: "過頂三頭＋扶牆二頭伸展", meta: "各 30 秒", sec: 30, cue: "舒緩上肢推拉與手臂超級組後的緊繃張力。" }
+        { id: "c_chest", name: "牆柱／深蹲架單臂胸肌伸展", meta: "每側 35 秒（左右各 1 組）", sets: 2, sec: 35, cue: "前臂貼立柱微轉身拉開胸大肌，避免圓肩限制扣球。" },
+        { id: "c_lat", name: "跪姿背闊肌伸展", meta: "35 秒 × 2 組", sets: 2, sec: 35, cue: "雙手前伸臀部坐向腳跟，拉長扣球下壓主力肌群。" },
+        { id: "c_arm", name: "過頂三頭＋扶牆二頭伸展", meta: "各 30 秒（2 組）", sets: 2, sec: 30, cue: "舒緩上肢推拉與手臂超級組後的緊繃張力。" }
       ];
 
       if (dayKey === "tue") {
@@ -799,17 +855,26 @@ function doGet(e) {
 
       const tuePlan = buildDayPlan("tue", false);
       tuePlan.main[1].sets = 3;
-      const tueChecks = {
-        w_ankle: true, w_wgs: true, w_glute: true,
-        m_a1: true, m_a2: true, m_a3: true, m_a4: true,
-        c_hip: true, c_calf: true, c_quad: true
+      const tueSetLogs = {
+        w_ankle: [true, true], w_wgs: [true, true], w_glute: [true, true],
+        m_a1: [true, true, true, true, true],
+        m_a2: [true, true, true],
+        m_a3: [true, true, true],
+        m_a4: [true, true, true],
+        c_hip: [true, true], c_calf: [true, true], c_quad: [true, true]
       };
 
       const wedPlan = buildDayPlan("wed", false);
-      const wedChecks = {
-        w_thoracic: true, w_scap: true,
-        m_b1: true, m_b2: true, m_b3: true, m_b4: true, m_b5a: true, m_b5b: true, m_b6: true,
-        c_chest: true, c_lat: true, c_arm: true
+      const wedSetLogs = {
+        w_thoracic: [true, true], w_scap: [true, true],
+        m_b1: [true, true, true, true],
+        m_b2: [true, true, true, true],
+        m_b3: [true, true, true, true],
+        m_b4: [true, true, true],
+        m_b5a: [true, true, true],
+        m_b5b: [true, true, true, true],
+        m_b6: [true, true, true],
+        c_chest: [true, true], c_lat: [true, true], c_arm: [true, true]
       };
 
       const st = {
@@ -840,7 +905,8 @@ function doGet(e) {
           "2026-11-24": {
             dayKey: "tue",
             plan: tuePlan,
-            checks: tueChecks,
+            checks: {},
+            setLogs: tueSetLogs,
             meals: [],
             water: 2400,
             creatine: true
@@ -848,7 +914,8 @@ function doGet(e) {
           "2026-11-25": {
             dayKey: "wed",
             plan: wedPlan,
-            checks: wedChecks,
+            checks: {},
+            setLogs: wedSetLogs,
             meals: [
               { id: "hist_1125_1", name: "週三全天飲食總結（2026-11-25）", kcal: 2309, pro: 147, carb: 233, fat: 88 }
             ],
@@ -868,12 +935,31 @@ function doGet(e) {
           dayKey: dKey,
           plan: buildDayPlan(dKey, st.outdoorMode),
           checks: {},
+          setLogs: {},
           meals: [],
           water: 0,
           creatine: false
         };
       }
-      return st.recordsByDate[dateStr];
+      const rec = st.recordsByDate[dateStr];
+      if (!rec.setLogs) rec.setLogs = {};
+      if (!rec.checks) rec.checks = {};
+      // 相容舊版整項 checks，自動轉為逐組狀態
+      ["warmup", "main", "cooldown"].forEach(function(stage) {
+        (rec.plan[stage] || []).forEach(function(item) {
+          const totalSets = Math.max(1, item.sets || 1);
+          if (!Array.isArray(rec.setLogs[item.id])) {
+            const wasDone = !!rec.checks[item.id];
+            rec.setLogs[item.id] = Array(totalSets).fill(wasDone);
+          } else if (rec.setLogs[item.id].length !== totalSets) {
+            const oldArr = rec.setLogs[item.id];
+            const nextArr = [];
+            for (let i = 0; i < totalSets; i++) nextArr.push(!!oldArr[i]);
+            rec.setLogs[item.id] = nextArr;
+          }
+        });
+      });
+      return rec;
     }
 
     let state = loadState();
@@ -882,13 +968,16 @@ function doGet(e) {
       try {
         const raw =
           localStorage.getItem(STORAGE_KEY) ||
+          localStorage.getItem("strong_journal_complete_v14") ||
           localStorage.getItem("strong_journal_complete_v13") ||
           localStorage.getItem("strong_journal_complete_v12") ||
           localStorage.getItem("strong_journal_layout_fix_v11") ||
-          localStorage.getItem("strong_journal_with_ai_v10") ||
-          localStorage.getItem("strong_journal_black_yellow_v8");
+          localStorage.getItem("strong_journal_with_ai_v10");
         if (!raw) return createDefaultState();
         const parsed = Object.assign(createDefaultState(), JSON.parse(raw));
+        Object.keys(parsed.recordsByDate || {}).forEach(function(dt) {
+          ensureDateRecord(parsed, dt);
+        });
         ensureDateRecord(parsed, parsed.selectedDate);
         return parsed;
       } catch (e) {
@@ -909,7 +998,7 @@ function doGet(e) {
       el.textContent = msg;
       el.classList.add("show");
       clearTimeout(window.__toastTimer);
-      window.__toastTimer = setTimeout(function() { el.classList.remove("show"); }, 2500);
+      window.__toastTimer = setTimeout(function() { el.classList.remove("show"); }, 2400);
     }
 
     let wakeLockSentinel = null;
@@ -960,6 +1049,8 @@ function doGet(e) {
       rec.dayKey = newDayKey;
       rec.plan = buildDayPlan(newDayKey, state.outdoorMode);
       rec.checks = {};
+      rec.setLogs = {};
+      ensureDateRecord(state, state.selectedDate, newDayKey);
       saveState();
       renderAll();
       showToast("已切換當日課表為：" + DAY_META[newDayKey].label);
@@ -975,6 +1066,7 @@ function doGet(e) {
       state.outdoorMode = !state.outdoorMode;
       const rec = getCurrentRecord();
       rec.plan = buildDayPlan(rec.dayKey, state.outdoorMode);
+      ensureDateRecord(state, state.selectedDate);
       saveState();
       renderWorkout();
       showToast(state.outdoorMode ? "已切換室外場無滾筒替代熱身" : "已切換室內健身房熱身");
@@ -1022,11 +1114,54 @@ function doGet(e) {
       }, 1000);
     }
 
-    function toggleCheck(stageKey, itemId, restSec) {
+    /* ===== 核心：每組獨立打勾記號 + 左側全組一鍵完成 ===== */
+    function getSetArray(rec, item) {
+      const total = Math.max(1, item.sets || 1);
+      if (!Array.isArray(rec.setLogs[item.id])) {
+        rec.setLogs[item.id] = Array(total).fill(!!rec.checks[item.id]);
+      }
+      while (rec.setLogs[item.id].length < total) rec.setLogs[item.id].push(false);
+      if (rec.setLogs[item.id].length > total) rec.setLogs[item.id] = rec.setLogs[item.id].slice(0, total);
+      return rec.setLogs[item.id];
+    }
+
+    function toggleSingleSet(stageKey, itemId, setIdx, restSec) {
       const rec = getCurrentRecord();
-      const nextVal = !rec.checks[itemId];
-      rec.checks[itemId] = nextVal;
+      const item = (rec.plan[stageKey] || []).find(function(x) { return x.id === itemId; });
+      if (!item) return;
+      const arr = getSetArray(rec, item);
+      const nextVal = !arr[setIdx];
+      arr[setIdx] = nextVal;
+
+      const doneCount = arr.filter(Boolean).length;
+      rec.checks[itemId] = (doneCount === arr.length);
+
       if (nextVal) {
+        state.xp += 5;
+        playBeep(880, 0.08);
+        if (stageKey === "main" && restSec) {
+          openRestTimer(restSec);
+        }
+        if (doneCount === arr.length) {
+          showToast((item.code ? item.code + " " : "") + "全部 " + arr.length + " 組已完成！");
+        } else {
+          showToast((item.code ? item.code + " " : "") + "已完成第 " + (setIdx + 1) + " 組（" + doneCount + "/" + arr.length + "）");
+        }
+      }
+      saveState();
+      renderWorkout();
+    }
+
+    function toggleAllSetsOfItem(stageKey, itemId, restSec) {
+      const rec = getCurrentRecord();
+      const item = (rec.plan[stageKey] || []).find(function(x) { return x.id === itemId; });
+      if (!item) return;
+      const arr = getSetArray(rec, item);
+      const allDone = arr.every(Boolean);
+      const targetState = !allDone;
+      rec.setLogs[itemId] = Array(arr.length).fill(targetState);
+      rec.checks[itemId] = targetState;
+      if (targetState) {
         state.xp += 15;
         if (stageKey === "main" && restSec) openRestTimer(restSec);
       }
@@ -1038,7 +1173,11 @@ function doGet(e) {
       const rec = getCurrentRecord();
       const item = rec.plan.main.find(function(x) { return x.id === itemId; });
       if (!item) return;
-      if (field === "sets") item.sets = Math.max(1, Math.min(10, item.sets + delta));
+      if (field === "sets") {
+        item.sets = Math.max(1, Math.min(10, item.sets + delta));
+        getSetArray(rec, item);
+        rec.checks[item.id] = rec.setLogs[item.id].every(Boolean);
+      }
       if (field === "reps") item.reps = Math.max(1, Math.min(50, item.reps + delta));
       if (field === "weight") {
         item.bodyweight = false;
@@ -1060,7 +1199,11 @@ function doGet(e) {
     function applyDeloadToday() {
       const rec = getCurrentRecord();
       rec.plan.main.forEach(function(item) {
-        if (item.sets > 2) item.sets -= 1;
+        if (item.sets > 2) {
+          item.sets -= 1;
+          getSetArray(rec, item);
+          rec.checks[item.id] = rec.setLogs[item.id].every(Boolean);
+        }
         if (!item.bodyweight && item.weight > 0) {
           item.weight = Math.max(2.5, Math.round((item.weight * 0.9) * 2) / 2);
         }
@@ -1068,6 +1211,29 @@ function doGet(e) {
       saveState();
       renderWorkout();
       showToast("已套用今日降載（減 1 組・降重 10%）");
+    }
+
+    function renderSetBubblesHtml(stageKey, item, setArr) {
+      const doneCount = setArr.filter(Boolean).length;
+      const total = setArr.length;
+      const allDone = doneCount === total;
+      const restVal = stageKey === "main" ? (item.restSec || 90) : 0;
+
+      let bubbles = "";
+      for (let i = 0; i < total; i++) {
+        const isDone = !!setArr[i];
+        bubbles += '<button type="button" class="set-bubble ' + (isDone ? "done" : "") + '" ' +
+          'onclick="toggleSingleSet(\'' + stageKey + '\',\'' + item.id + '\',' + i + ',' + restVal + ')" ' +
+          'title="第 ' + (i + 1) + ' 組">' +
+          (isDone ? "✓" : (i + 1)) +
+        '</button>';
+      }
+
+      return '<div class="set-bubbles-bar">' +
+        '<span class="set-bubbles-label">逐組記號：</span>' +
+        bubbles +
+        '<span class="set-status-pill ' + (allDone ? "all-done" : "") + '">' + doneCount + ' / ' + total + ' 組</span>' +
+      '</div>';
     }
 
     function renderWorkout() {
@@ -1078,27 +1244,30 @@ function doGet(e) {
       document.getElementById("warmupModeTag").textContent = state.outdoorMode ? "室外無滾筒模式" : "室內健身房模式";
 
       document.getElementById("warmupList").innerHTML = rec.plan.warmup.map(function(item) {
-        const done = !!rec.checks[item.id];
-        return '<div class="item-row ' + (done ? "done" : "") + '">' +
+        const setArr = getSetArray(rec, item);
+        const allDone = setArr.every(Boolean);
+        return '<div class="item-row ' + (allDone ? "done" : "") + '">' +
           '<div class="item-top">' +
-            '<button class="check-circle ' + (done ? "checked" : "") + '" onclick="toggleCheck(\'warmup\',\'' + item.id + '\',0)">' + (done ? "✓" : "") + '</button>' +
+            '<button class="check-circle ' + (allDone ? "checked" : "") + '" onclick="toggleAllSetsOfItem(\'warmup\',\'' + item.id + '\',0)" title="一鍵全組完成">' + (allDone ? "✓" : "") + '</button>' +
             '<div style="flex:1;"><div class="item-name">' + item.name + '</div><div class="item-meta">' + item.meta + '</div></div>' +
             '<div style="display:flex;gap:5px;">' +
               '<button class="mini-btn timer-btn" onclick="startItemCountdown(this,' + (item.sec || 35) + ',\'' + item.name + '\')">⏱️ ' + (item.sec || 35) + 's</button>' +
               '<button class="mini-btn" onclick="document.getElementById(\'cue_' + item.id + '\').classList.toggle(\'hidden\')">要領</button>' +
             '</div>' +
           '</div>' +
+          renderSetBubblesHtml("warmup", item, setArr) +
           '<div id="cue_' + item.id + '" class="cue-box hidden">' + item.cue + '</div>' +
         '</div>';
       }).join("");
 
       document.getElementById("mainList").innerHTML = rec.plan.main.map(function(item) {
-        const done = !!rec.checks[item.id];
+        const setArr = getSetArray(rec, item);
+        const allDone = setArr.every(Boolean);
         const wLabel = item.bodyweight ? "徒手" : (item.weight + " kg");
         const baseText = state.baselines[item.code] || "尚無基準";
-        return '<div class="item-row ' + (done ? "done" : "") + '">' +
+        return '<div class="item-row ' + (allDone ? "done" : "") + '">' +
           '<div class="item-top">' +
-            '<button class="check-circle ' + (done ? "checked" : "") + '" onclick="toggleCheck(\'main\',\'' + item.id + '\',' + (item.restSec || 90) + ')">' + (done ? "✓" : "") + '</button>' +
+            '<button class="check-circle ' + (allDone ? "checked" : "") + '" onclick="toggleAllSetsOfItem(\'main\',\'' + item.id + '\',' + (item.restSec || 90) + ')" title="一鍵全組完成">' + (allDone ? "✓" : "") + '</button>' +
             '<div style="flex:1;">' +
               '<div class="item-name"><span class="code-tag">' + item.code + '</span>' + item.name + '</div>' +
               '<div class="item-meta">設定：' + item.sets + ' 組 × ' + item.reps + ' 下｜' + wLabel + '（休 ' + (item.restSec || 90) + 's）</div>' +
@@ -1108,6 +1277,7 @@ function doGet(e) {
               '<button class="mini-btn" onclick="document.getElementById(\'cue_' + item.id + '\').classList.toggle(\'hidden\')">要領</button>' +
             '</div>' +
           '</div>' +
+          renderSetBubblesHtml("main", item, setArr) +
           '<div class="steppers">' +
             '<div class="stepper-group"><button onclick="stepMain(\'' + item.id + '\',\'sets\',-1)">-</button><span class="stepper-val">' + item.sets + ' 組</span><button onclick="stepMain(\'' + item.id + '\',\'sets\',1)">+</button></div>' +
             '<div class="stepper-group"><button onclick="stepMain(\'' + item.id + '\',\'reps\',-1)">-</button><span class="stepper-val">' + item.reps + ' 下</span><button onclick="stepMain(\'' + item.id + '\',\'reps\',1)">+</button></div>' +
@@ -1120,16 +1290,18 @@ function doGet(e) {
       }).join("");
 
       document.getElementById("cooldownList").innerHTML = rec.plan.cooldown.map(function(item) {
-        const done = !!rec.checks[item.id];
-        return '<div class="item-row ' + (done ? "done" : "") + '">' +
+        const setArr = getSetArray(rec, item);
+        const allDone = setArr.every(Boolean);
+        return '<div class="item-row ' + (allDone ? "done" : "") + '">' +
           '<div class="item-top">' +
-            '<button class="check-circle ' + (done ? "checked" : "") + '" onclick="toggleCheck(\'cooldown\',\'' + item.id + '\',0)">' + (done ? "✓" : "") + '</button>' +
+            '<button class="check-circle ' + (allDone ? "checked" : "") + '" onclick="toggleAllSetsOfItem(\'cooldown\',\'' + item.id + '\',0)" title="一鍵全組完成">' + (allDone ? "✓" : "") + '</button>' +
             '<div style="flex:1;"><div class="item-name">' + item.name + '</div><div class="item-meta">' + item.meta + '</div></div>' +
             '<div style="display:flex;gap:5px;">' +
               '<button class="mini-btn timer-btn" onclick="startItemCountdown(this,' + (item.sec || 35) + ',\'' + item.name + '\')">⏱️ ' + (item.sec || 35) + 's</button>' +
               '<button class="mini-btn" onclick="document.getElementById(\'cue_' + item.id + '\').classList.toggle(\'hidden\')">要領</button>' +
             '</div>' +
           '</div>' +
+          renderSetBubblesHtml("cooldown", item, setArr) +
           '<div id="cue_' + item.id + '" class="cue-box hidden">' + item.cue + '</div>' +
         '</div>';
       }).join("");
@@ -1157,12 +1329,13 @@ function doGet(e) {
           const wm = tail.match(/(\d+(?:\.\d+)?)\s*(?:kg)?/i);
           if (wm) { item.bodyweight = false; item.weight = parseFloat(wm[1]); }
         }
+        rec.setLogs[item.id] = Array(Math.max(1, item.sets)).fill(true);
         rec.checks[item.id] = true;
         applied++;
       });
       saveState();
       renderWorkout();
-      showToast(applied ? ("已套用 " + applied + " 項代號紀錄") : "未辨識到符合當日課表的代號");
+      showToast(applied ? ("已套用 " + applied + " 項代號並打滿所有組數") : "未辨識到符合當日課表的代號");
     }
 
     let restInterval = null;
@@ -1182,7 +1355,7 @@ function doGet(e) {
           clearInterval(restInterval);
           restInterval = null;
           playBeep(987, 0.25);
-          showToast("組間休息結束！");
+          showToast("組間休息結束！準備下一組");
           setTimeout(function() { document.getElementById("floatingRest").classList.remove("show"); }, 1000);
         }
       }, 1000);
@@ -1556,11 +1729,18 @@ function doGet(e) {
       const dates = Object.keys(state.recordsByDate).sort().reverse();
       document.getElementById("historyDatesList").innerHTML = dates.map(function(dt) {
         const r = state.recordsByDate[dt];
-        const doneCount = Object.values(r.checks || {}).filter(Boolean).length;
+        let doneSets = 0, totalSets = 0;
+        ["warmup", "main", "cooldown"].forEach(function(stKey) {
+          (r.plan[stKey] || []).forEach(function(it) {
+            const arr = getSetArray(r, it);
+            totalSets += arr.length;
+            doneSets += arr.filter(Boolean).length;
+          });
+        });
         const kcalSum = Math.round((r.meals || []).reduce(function(s, m) { return s + (m.kcal || 0); }, 0));
         const lbl = (DAY_META[r.dayKey] && DAY_META[r.dayKey].label) || "";
         return '<div class="meal-item" style="cursor:pointer;" onclick="onDateChange(\'' + dt + '\');switchTab(\'workout\');">' +
-          '<div><b>' + dt + '</b>（' + lbl + '）<div class="item-meta">完成 ' + doneCount + ' 項清單｜攝取 ' + kcalSum + ' kcal｜飲水 ' + (r.water || 0) + ' ml</div></div>' +
+          '<div><b>' + dt + '</b>（' + lbl + '）<div class="item-meta">完成 ' + doneSets + '/' + totalSets + ' 組｜攝取 ' + kcalSum + ' kcal｜飲水 ' + (r.water || 0) + ' ml</div></div>' +
           '<span class="mini-btn">開啟</span>' +
         '</div>';
       }).join("");
@@ -1615,6 +1795,7 @@ function doGet(e) {
           state = Object.assign(createDefaultState(), data.payload);
           if (!state.apiKey) state.apiKey = keepKey;
           if (!state.gasUrl) state.gasUrl = keepUrl;
+          Object.keys(state.recordsByDate || {}).forEach(function(dt) { ensureDateRecord(state, dt); });
           saveState();
           renderAll();
           badge.textContent = "已載入雲端最新 ✓";
@@ -1640,6 +1821,7 @@ function doGet(e) {
         const raw = (document.getElementById("backupCodeBox").value || "").trim();
         const parsed = JSON.parse(raw);
         state = Object.assign(createDefaultState(), parsed);
+        Object.keys(state.recordsByDate || {}).forEach(function(dt) { ensureDateRecord(state, dt); });
         saveState();
         renderAll();
         showToast("已成功還原存檔！");
@@ -1673,14 +1855,17 @@ function doGet(e) {
       }, { kcal: 0, pro: 0, carb: 0, fat: 0 });
 
       const mainLines = rec.plan.main.map(function(m) {
-        return (rec.checks[m.id] ? "[✓] " : "[ ] ") + m.code + " " + m.name + "：" + m.sets + "×" + m.reps + " @ " + (m.bodyweight ? "徒手" : (m.weight + "kg"));
+        const setArr = getSetArray(rec, m);
+        const doneCount = setArr.filter(Boolean).length;
+        const statusMark = doneCount === setArr.length ? "[✓]" : ("[" + doneCount + "/" + setArr.length + "]");
+        return statusMark + " " + m.code + " " + m.name + "：" + doneCount + "/" + setArr.length + " 組 × " + m.reps + " 下 @ " + (m.bodyweight ? "徒手" : (m.weight + "kg"));
       });
 
       const lines = [
         "【" + state.selectedDate + "｜" + meta.title + "】",
         "睡眠狀態：" + (state.poorSleep ? "昨晚沒睡好（保護模式）" : "正常") + "｜體重 " + state.bodyWeight + "kg / 體脂 " + state.bodyFat + "%",
         "",
-        "■ 主課表紀錄"
+        "■ 主課表逐組紀錄"
       ].concat(mainLines).concat([
         "",
         "■ 今日營養與補給",
