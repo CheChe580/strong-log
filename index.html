@@ -188,57 +188,32 @@
     }
     .check-circle.checked { background: var(--accent); border-color: var(--accent); }
 
-    /* 每組獨立圓圈記號區 */
     .set-bubbles-bar {
-      display: flex;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 7px;
-      margin-top: 9px;
-      padding-top: 8px;
-      border-top: 1px dashed var(--border);
+      display: flex; align-items: center; flex-wrap: wrap; gap: 7px;
+      margin-top: 9px; padding-top: 8px; border-top: 1px dashed var(--border);
     }
     .set-bubbles-label {
-      font-size: 0.72rem;
-      font-weight: 800;
-      color: var(--text-muted);
-      margin-right: 2px;
+      font-size: 0.72rem; font-weight: 800; color: var(--text-muted); margin-right: 2px;
     }
     .set-bubble {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      border: 2px solid var(--accent);
-      background: var(--surface);
-      color: var(--accent);
-      font-size: 0.78rem;
-      font-weight: 900;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
+      width: 32px; height: 32px; border-radius: 50%;
+      border: 2px solid var(--accent); background: var(--surface); color: var(--accent);
+      font-size: 0.78rem; font-weight: 900; cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center;
       transition: transform 0.1s ease, background 0.15s ease, color 0.15s ease;
     }
     .set-bubble:active { transform: scale(0.92); }
     .set-bubble.done {
-      background: var(--accent);
-      color: var(--accent-text);
+      background: var(--accent); color: var(--accent-text);
       box-shadow: 0 0 0 2px rgba(250, 204, 21, 0.25);
     }
     .set-status-pill {
-      margin-left: auto;
-      font-size: 0.72rem;
-      font-weight: 800;
-      padding: 3px 8px;
-      border-radius: 999px;
-      background: var(--surface);
-      color: var(--text-muted);
-      border: 1px solid var(--border);
+      margin-left: auto; font-size: 0.72rem; font-weight: 800;
+      padding: 3px 8px; border-radius: 999px;
+      background: var(--surface); color: var(--text-muted); border: 1px solid var(--border);
     }
     .set-status-pill.all-done {
-      background: var(--green-soft);
-      color: var(--green);
-      border-color: rgba(34, 197, 94, 0.4);
+      background: var(--green-soft); color: var(--green); border-color: rgba(34, 197, 94, 0.4);
     }
 
     .code-tag {
@@ -318,11 +293,24 @@
     .ring-sub   { font-size: 0.68rem; color: var(--text-muted); }
 
     .chips-wrap { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-    .food-chip {
-      background: var(--surface-2); border: 1px solid var(--border); color: var(--text);
-      border-radius: 999px; padding: 6px 11px; font-size: 0.76rem; font-weight: 700; cursor: pointer;
+    .food-chip-wrap {
+      display: inline-flex; align-items: center;
+      background: var(--surface-2); border: 1px solid var(--border);
+      border-radius: 999px; overflow: hidden;
     }
-    .food-chip:active { border-color: var(--accent); color: var(--accent); }
+    .food-chip-wrap.custom {
+      border-color: rgba(250, 204, 21, 0.45);
+    }
+    .food-chip {
+      background: transparent; border: none; color: var(--text);
+      padding: 6px 10px; font-size: 0.76rem; font-weight: 700; cursor: pointer;
+    }
+    .food-chip:active { color: var(--accent); }
+    .food-chip-del {
+      background: transparent; border: none; border-left: 1px solid var(--border);
+      color: var(--text-muted); padding: 6px 8px; font-size: 0.72rem; font-weight: 900; cursor: pointer;
+    }
+    .food-chip-del:hover { color: var(--rose); }
 
     .meal-item {
       display: flex; align-items: center; justify-content: space-between; gap: 8px;
@@ -359,6 +347,21 @@
       opacity: 0; pointer-events: none; transition: all 0.2s ease; z-index: 60; white-space: nowrap;
     }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* 補水詢問浮動視窗 */
+    .water-prompt-banner {
+      margin-top: 10px;
+      background: rgba(56, 189, 248, 0.14);
+      border: 1px solid rgba(56, 189, 248, 0.5);
+      border-radius: 12px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+      font-size: 0.82rem;
+    }
 
     .hidden { display: none !important; }
     pre.code-sample {
@@ -535,12 +538,21 @@
             <button class="mini-btn" onclick="resetWater()">歸零</button>
           </div>
         </div>
+
+        <!-- 補肌酸／乳清時詢問是否加 500ml 喝水量 -->
+        <div id="waterAskBox" class="water-prompt-banner hidden">
+          <div id="waterAskText" style="font-weight:700;">💧 剛補充了肌酸／乳清，是否順便加 500 ml 進今日喝水量？</div>
+          <div style="display:flex;gap:6px;">
+            <button type="button" class="btn-primary" style="padding:6px 11px;font-size:0.78rem;" onclick="confirmAdd500Water()">✅ 是，+500ml</button>
+            <button type="button" class="mini-btn" onclick="dismissWaterAsk()">不用</button>
+          </div>
+        </div>
       </div>
 
       <div class="card">
         <div class="card-header">
           <h3 class="card-title">⚡ 外食與高蛋白補給一鍵快選</h3>
-          <span class="item-meta">零設定・離線秒加</span>
+          <span class="item-meta">合適的 AI 分析食物可一鍵收入這裡</span>
         </div>
         <div id="quickFoodChips" class="chips-wrap"></div>
       </div>
@@ -690,7 +702,7 @@ function doGet(e) {
   </div>
 
   <script>
-    const STORAGE_KEY = "strong_journal_complete_v15";
+    const STORAGE_KEY = "strong_journal_complete_v16";
 
     const DAY_META = {
       mon: { label: "週一", title: "週一｜晚上排球實戰", note: "白天恢復為主，賽前 15 分鐘做好腳踝與髖關節動態熱身。", type: "ball", kcal: 2400, pro: 150, carb: 250, fat: 65 },
@@ -702,15 +714,15 @@ function doGet(e) {
       sun: { label: "週日", title: "週日｜復燃練球", note: "高強度專項整合：專注助跑起跳節奏、空中收腹核心與揮臂鞭打。", type: "ball", kcal: 2400, pro: 150, carb: 250, fat: 65 }
     };
 
-    const QUICK_FOODS = [
-      { name: "烤雞腿排便當", kcal: 800, pro: 38, carb: 80, fat: 31 },
-      { name: "日式燒肉飯（不淋汁）", kcal: 710, pro: 28, carb: 85, fat: 24 },
-      { name: "超商舒肥雞胸肉", kcal: 145, pro: 26, carb: 1, fat: 3 },
-      { name: "MARS 水解乳清 1包", kcal: 120, pro: 26, carb: 3, fat: 1 },
-      { name: "無糖濃豆漿 400ml", kcal: 205, pro: 19, carb: 8, fat: 9 },
-      { name: "茶葉蛋 1顆", kcal: 75, pro: 7, carb: 1, fat: 5 },
-      { name: "烤地瓜（中150g）", kcal: 195, pro: 2, carb: 45, fat: 0.3 },
-      { name: "御飯糰 1顆", kcal: 230, pro: 6, carb: 38, fat: 5 }
+    const DEFAULT_QUICK_FOODS = [
+      { id: "def_1", name: "烤雞腿排便當", kcal: 800, pro: 38, carb: 80, fat: 31, custom: false },
+      { id: "def_2", name: "日式燒肉飯（不淋汁）", kcal: 710, pro: 28, carb: 85, fat: 24, custom: false },
+      { id: "def_3", name: "超商舒肥雞胸肉", kcal: 145, pro: 26, carb: 1, fat: 3, custom: false },
+      { id: "def_4", name: "MARS 水解乳清 1包", kcal: 120, pro: 26, carb: 3, fat: 1, custom: false },
+      { id: "def_5", name: "無糖濃豆漿 400ml", kcal: 205, pro: 19, carb: 8, fat: 9, custom: false },
+      { id: "def_6", name: "茶葉蛋 1顆", kcal: 75, pro: 7, carb: 1, fat: 5, custom: false },
+      { id: "def_7", name: "烤地瓜（中150g）", kcal: 195, pro: 2, carb: 45, fat: 0.3, custom: false },
+      { id: "def_8", name: "御飯糰 1顆", kcal: 230, pro: 6, carb: 38, fat: 5, custom: false }
     ];
 
     function getTodayISO() {
@@ -888,6 +900,7 @@ function doGet(e) {
         bodyFat: 16.8,
         apiKey: "",
         gasUrl: "",
+        quickFoods: JSON.parse(JSON.stringify(DEFAULT_QUICK_FOODS)),
         baselines: {
           "A1": "5×5 @ 80kg",
           "A2": "3×8 @ 60kg",
@@ -944,7 +957,6 @@ function doGet(e) {
       const rec = st.recordsByDate[dateStr];
       if (!rec.setLogs) rec.setLogs = {};
       if (!rec.checks) rec.checks = {};
-      // 相容舊版整項 checks，自動轉為逐組狀態
       ["warmup", "main", "cooldown"].forEach(function(stage) {
         (rec.plan[stage] || []).forEach(function(item) {
           const totalSets = Math.max(1, item.sets || 1);
@@ -968,13 +980,15 @@ function doGet(e) {
       try {
         const raw =
           localStorage.getItem(STORAGE_KEY) ||
+          localStorage.getItem("strong_journal_complete_v15") ||
           localStorage.getItem("strong_journal_complete_v14") ||
           localStorage.getItem("strong_journal_complete_v13") ||
-          localStorage.getItem("strong_journal_complete_v12") ||
-          localStorage.getItem("strong_journal_layout_fix_v11") ||
-          localStorage.getItem("strong_journal_with_ai_v10");
+          localStorage.getItem("strong_journal_complete_v12");
         if (!raw) return createDefaultState();
         const parsed = Object.assign(createDefaultState(), JSON.parse(raw));
+        if (!Array.isArray(parsed.quickFoods) || !parsed.quickFoods.length) {
+          parsed.quickFoods = JSON.parse(JSON.stringify(DEFAULT_QUICK_FOODS));
+        }
         Object.keys(parsed.recordsByDate || {}).forEach(function(dt) {
           ensureDateRecord(parsed, dt);
         });
@@ -998,7 +1012,7 @@ function doGet(e) {
       el.textContent = msg;
       el.classList.add("show");
       clearTimeout(window.__toastTimer);
-      window.__toastTimer = setTimeout(function() { el.classList.remove("show"); }, 2400);
+      window.__toastTimer = setTimeout(function() { el.classList.remove("show"); }, 2500);
     }
 
     let wakeLockSentinel = null;
@@ -1114,7 +1128,6 @@ function doGet(e) {
       }, 1000);
     }
 
-    /* ===== 核心：每組獨立打勾記號 + 左側全組一鍵完成 ===== */
     function getSetArray(rec, item) {
       const total = Math.max(1, item.sets || 1);
       if (!Array.isArray(rec.setLogs[item.id])) {
@@ -1139,9 +1152,7 @@ function doGet(e) {
       if (nextVal) {
         state.xp += 5;
         playBeep(880, 0.08);
-        if (stageKey === "main" && restSec) {
-          openRestTimer(restSec);
-        }
+        if (stageKey === "main" && restSec) openRestTimer(restSec);
         if (doneCount === arr.length) {
           showToast((item.code ? item.code + " " : "") + "全部 " + arr.length + " 組已完成！");
         } else {
@@ -1371,6 +1382,7 @@ function doGet(e) {
     /* ===== 食物圖片處理（640px 輕量化壓縮＋預覽＋刪除） ===== */
     let selectedImageBase64 = null;
     let selectedImageMime = "image/jpeg";
+    let lastAnalyzedCandidate = null;
 
     function compressImageToBase64(file, callback) {
       const reader = new FileReader();
@@ -1514,6 +1526,37 @@ function doGet(e) {
       }
     }
 
+    function addLastAnalyzedToQuickFoods(btnEl) {
+      if (!lastAnalyzedCandidate) return;
+      const exists = state.quickFoods.some(function(f) {
+        return f.name === lastAnalyzedCandidate.name && f.kcal === lastAnalyzedCandidate.kcal;
+      });
+      if (exists) {
+        showToast("這道食物已經在「一鍵快選」裡囉！");
+        if (btnEl) {
+          btnEl.textContent = "✓ 已在快選中";
+          btnEl.disabled = true;
+        }
+        return;
+      }
+      state.quickFoods.unshift({
+        id: "cust_" + Date.now(),
+        name: lastAnalyzedCandidate.name,
+        kcal: lastAnalyzedCandidate.kcal,
+        pro: lastAnalyzedCandidate.pro,
+        carb: lastAnalyzedCandidate.carb,
+        fat: lastAnalyzedCandidate.fat,
+        custom: true
+      });
+      saveState();
+      renderQuickChips();
+      if (btnEl) {
+        btnEl.textContent = "✅ 已加入一鍵快選";
+        btnEl.disabled = true;
+      }
+      showToast("已將「" + lastAnalyzedCandidate.name + "」加入一鍵快選！");
+    }
+
     async function analyzeFoodWithGemini() {
       const key = cleanApiKey(state.apiKey);
       if (!key) {
@@ -1531,7 +1574,7 @@ function doGet(e) {
       btn.disabled = true;
       btn.textContent = "分析中...";
 
-      const prompt = '你是台灣運動營養師。請分析這份餐點的營養素，僅回傳純 JSON（不要 markdown 標記），格式為：{"name":"餐點名稱","kcal":數字,"pro":蛋白質克數,"carb":碳水克數,"fat":脂肪克數,"tip":"給目標體脂16.8%降到12%的排球運動員一句簡短止損或搭配建議"} 餐點描述：' + (desc || "請根據圖片辨識食物與份量");
+      const prompt = '你是台灣運動營養師。請分析這份餐點的營養素，僅回傳純 JSON（不要 markdown 標記），格式為：{"name":"餐點名稱","kcal":數字,"pro":蛋白質克數,"carb":碳水克數,"fat":脂肪克數,"fitForGoal":true或false,"tip":"給目標體脂16.8%降到12%的排球運動員一句簡短止損或搭配建議"} 餐點描述：' + (desc || "請根據圖片辨識食物與份量");
       const parts = [{ text: prompt }];
       if (selectedImageBase64) {
         parts.push({ inline_data: { mime_type: selectedImageMime, data: selectedImageBase64 } });
@@ -1544,21 +1587,44 @@ function doGet(e) {
         if (!jsonMatch) throw new Error("AI 回傳格式無法解析：" + cleaned.slice(0, 80));
         const parsed = JSON.parse(jsonMatch[0]);
 
-        const rec = getCurrentRecord();
-        rec.meals.push({
-          id: "ai_" + Date.now(),
+        const foodObj = {
           name: parsed.name || desc || "AI 分析餐點",
           kcal: Number(parsed.kcal) || 0,
           pro: Number(parsed.pro) || 0,
           carb: Number(parsed.carb) || 0,
           fat: Number(parsed.fat) || 0
+        };
+        lastAnalyzedCandidate = foodObj;
+
+        const rec = getCurrentRecord();
+        rec.meals.push({
+          id: "ai_" + Date.now(),
+          name: foodObj.name,
+          kcal: foodObj.kcal,
+          pro: foodObj.pro,
+          carb: foodObj.carb,
+          fat: foodObj.fat
         });
         state.xp += 15;
         saveState();
 
+        // 若餐點名稱或描述包含乳清或肌酸，同步彈出 500ml 補水詢問
+        checkAndAsk500WaterForFood(foodObj.name);
+
+        const isFit = parsed.fitForGoal !== undefined
+          ? !!parsed.fitForGoal
+          : (foodObj.pro >= 18 && foodObj.fat <= 32);
+
         box.className = "banner ok";
         box.classList.remove("hidden");
-        box.innerHTML = "<div><strong>已自動加入：" + parsed.name + "</strong>（" + parsed.kcal + " kcal｜蛋白 " + parsed.pro + "g｜碳水 " + parsed.carb + "g｜脂肪 " + parsed.fat + "g｜模型：" + res.model + "）<br/><span>💡 " + (parsed.tip || "") + "</span></div>";
+        box.innerHTML =
+          '<div style="flex:1;">' +
+            '<strong>已自動加入：' + foodObj.name + '</strong>（' + foodObj.kcal + ' kcal｜蛋白 ' + foodObj.pro + 'g｜碳水 ' + foodObj.carb + 'g｜脂肪 ' + foodObj.fat + 'g）<br/>' +
+            '<span>💡 ' + (parsed.tip || "") + '</span>' +
+          '</div>' +
+          '<button type="button" class="btn-primary" style="padding:7px 11px;font-size:0.78rem;" onclick="addLastAnalyzedToQuickFoods(this)">' +
+            (isFit ? '⭐ 適合減脂！加進一鍵快選' : '📌 加進一鍵快選') +
+          '</button>';
 
         document.getElementById("aiFoodText").value = "";
         clearFoodImage();
@@ -1575,19 +1641,38 @@ function doGet(e) {
     }
 
     function renderQuickChips() {
-      document.getElementById("quickFoodChips").innerHTML = QUICK_FOODS.map(function(f, idx) {
-        return '<button class="food-chip" onclick="addQuickFood(' + idx + ')">+ ' + f.name + '（' + f.kcal + 'kcal / ' + f.pro + 'g蛋）</button>';
+      document.getElementById("quickFoodChips").innerHTML = state.quickFoods.map(function(f, idx) {
+        return '<div class="food-chip-wrap ' + (f.custom ? "custom" : "") + '">' +
+          '<button type="button" class="food-chip" onclick="addQuickFood(' + idx + ')">+ ' + f.name + '（' + Math.round(f.kcal) + 'kcal / ' + Math.round(f.pro) + 'g蛋）</button>' +
+          (f.custom ? '<button type="button" class="food-chip-del" onclick="removeQuickFood(' + idx + ')" title="移除自訂快選">✕</button>' : '') +
+        '</div>';
       }).join("");
     }
 
+    function removeQuickFood(idx) {
+      const removed = state.quickFoods.splice(idx, 1);
+      saveState();
+      renderQuickChips();
+      if (removed && removed[0]) showToast("已從一鍵快選移除：" + removed[0].name);
+    }
+
+    function checkAndAsk500WaterForFood(foodName) {
+      const nameStr = String(foodName || "");
+      if (nameStr.indexOf("乳清") !== -1 || nameStr.indexOf("肌酸") !== -1 || /whey|creatine/i.test(nameStr)) {
+        triggerWaterAsk("剛補充「" + nameStr + "」，是否順便加 500 ml 進今日喝水量？");
+      }
+    }
+
     function addQuickFood(idx) {
-      const f = QUICK_FOODS[idx];
+      const f = state.quickFoods[idx];
+      if (!f) return;
       const rec = getCurrentRecord();
       rec.meals.push({ id: "qf_" + Date.now() + "_" + idx, name: f.name, kcal: f.kcal, pro: f.pro, carb: f.carb, fat: f.fat });
       state.xp += 10;
       saveState();
       renderNutrition();
       showToast("已加入 " + f.name);
+      checkAndAsk500WaterForFood(f.name);
     }
 
     function parseQuickPasteMeal() {
@@ -1607,6 +1692,7 @@ function doGet(e) {
       saveState();
       renderNutrition();
       showToast("已匯入：" + name);
+      checkAndAsk500WaterForFood(name);
     }
 
     function addCustomMeal() {
@@ -1621,6 +1707,7 @@ function doGet(e) {
       saveState();
       renderNutrition();
       showToast("已加入 " + name);
+      checkAndAsk500WaterForFood(name);
     }
 
     function deleteMeal(id) {
@@ -1638,7 +1725,36 @@ function doGet(e) {
 
     function addWater(ml) { getCurrentRecord().water += ml; saveState(); renderNutrition(); }
     function resetWater() { getCurrentRecord().water = 0; saveState(); renderNutrition(); }
-    function toggleCreatine(val) { getCurrentRecord().creatine = val; saveState(); }
+
+    /* ===== 補肌酸／乳清時詢問是否加 500ml 喝水量 ===== */
+    function triggerWaterAsk(customMsg) {
+      const box = document.getElementById("waterAskBox");
+      const txt = document.getElementById("waterAskText");
+      if (!box || !txt) return;
+      txt.textContent = "💧 " + customMsg;
+      box.classList.remove("hidden");
+    }
+
+    function confirmAdd500Water() {
+      addWater(500);
+      dismissWaterAsk();
+      showToast("已幫你把 500 ml 加入今日喝水量！💧");
+    }
+
+    function dismissWaterAsk() {
+      const box = document.getElementById("waterAskBox");
+      if (box) box.classList.add("hidden");
+    }
+
+    function toggleCreatine(val) {
+      getCurrentRecord().creatine = val;
+      saveState();
+      if (val) {
+        triggerWaterAsk("已勾選肌酸 5g 補充，是否順便加 500 ml 進今日喝水量？");
+      } else {
+        dismissWaterAsk();
+      }
+    }
 
     function makeRingSvg(pct, color) {
       const r = 20, c = 2 * Math.PI * r;
@@ -1795,6 +1911,9 @@ function doGet(e) {
           state = Object.assign(createDefaultState(), data.payload);
           if (!state.apiKey) state.apiKey = keepKey;
           if (!state.gasUrl) state.gasUrl = keepUrl;
+          if (!Array.isArray(state.quickFoods) || !state.quickFoods.length) {
+            state.quickFoods = JSON.parse(JSON.stringify(DEFAULT_QUICK_FOODS));
+          }
           Object.keys(state.recordsByDate || {}).forEach(function(dt) { ensureDateRecord(state, dt); });
           saveState();
           renderAll();
@@ -1821,6 +1940,9 @@ function doGet(e) {
         const raw = (document.getElementById("backupCodeBox").value || "").trim();
         const parsed = JSON.parse(raw);
         state = Object.assign(createDefaultState(), parsed);
+        if (!Array.isArray(state.quickFoods) || !state.quickFoods.length) {
+          state.quickFoods = JSON.parse(JSON.stringify(DEFAULT_QUICK_FOODS));
+        }
         Object.keys(state.recordsByDate || {}).forEach(function(dt) { ensureDateRecord(state, dt); });
         saveState();
         renderAll();
