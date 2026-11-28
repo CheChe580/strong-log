@@ -6,7 +6,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="theme-color" content="#0A0A0A" />
-  <title>變強全能日誌｜黑底黃線版</title>
+  <title>變強全能日誌｜完整旗艦版</title>
   <style>
     :root {
       --bg: #0A0A0A;
@@ -45,16 +45,16 @@
       --shadow: 0 2px 10px rgba(15, 23, 42, 0.06);
     }
 
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    * { box-sizing: border-box; min-width: 0; -webkit-tap-highlight-color: transparent; }
 
     html, body {
       margin: 0; padding: 0;
       background: var(--bg); color: var(--text);
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang TC", "Noto Sans TC", sans-serif;
-      line-height: 1.5; min-height: 100vh;
+      line-height: 1.5; min-height: 100vh; overflow-x: hidden;
     }
 
-    .app { max-width: 780px; margin: 0 auto; padding: 14px 14px 124px; }
+    .app { width: 100%; max-width: 780px; margin: 0 auto; padding: 14px 14px 124px; }
 
     .topbar {
       background: var(--surface);
@@ -64,6 +64,7 @@
       padding: 14px 16px;
       box-shadow: var(--shadow);
       margin-bottom: 12px;
+      overflow: hidden;
     }
 
     .topbar-row {
@@ -93,10 +94,12 @@
     .date-controls { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 
     input[type="date"], input[type="text"], input[type="number"], input[type="password"], select, textarea {
+      width: 100%; min-width: 0; max-width: 100%;
       background: var(--surface-2); color: var(--text); border: 1px solid var(--border);
       border-radius: 10px; padding: 8px 10px; font-size: 0.85rem; font-family: inherit;
     }
-    input[type="date"] { padding: 6px 10px; font-weight: 700; }
+    input[type="date"] { width: auto; padding: 6px 10px; font-weight: 700; }
+    select { width: auto; }
 
     .sync-badge {
       font-size: 0.73rem; font-weight: 800; padding: 4px 10px; border-radius: 999px;
@@ -105,7 +108,7 @@
     .sync-badge.ok { background: var(--green-soft); color: var(--green); border-color: rgba(34, 197, 94, 0.35); }
 
     .main-tabs {
-      display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;
+      display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px;
       background: var(--surface); border: 1px solid var(--border);
       border-radius: var(--radius); padding: 6px; margin-bottom: 12px;
     }
@@ -122,12 +125,23 @@
       background: var(--surface); border: 1px solid var(--border);
       border-radius: var(--radius); padding: 14px 15px;
       box-shadow: var(--shadow); margin-bottom: 12px;
+      overflow: hidden;
     }
     .card-header {
       display: flex; align-items: center; justify-content: space-between;
       gap: 8px; margin-bottom: 10px; flex-wrap: wrap;
     }
     .card-title { font-size: 0.96rem; font-weight: 800; margin: 0; display: flex; align-items: center; gap: 6px; }
+
+    .form-grid-2 {
+      display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-bottom: 8px;
+    }
+    .form-row-btn {
+      display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: center;
+    }
+    .metrics-grid {
+      display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-bottom: 10px;
+    }
 
     .banner {
       border-radius: var(--radius-sm); padding: 11px 13px; margin-bottom: 12px;
@@ -140,6 +154,7 @@
     .stage-box {
       background: var(--surface); border: 1px solid var(--border);
       border-radius: var(--radius); padding: 12px; margin-bottom: 12px;
+      overflow: hidden;
     }
     .stage-box.warmup { border-left: 4px solid var(--amber); }
     .stage-box.main   { border-left: 4px solid var(--accent); }
@@ -182,6 +197,7 @@
     .mini-btn {
       border: 1px solid var(--border); background: var(--surface); color: var(--text);
       border-radius: 8px; padding: 5px 8px; font-size: 0.74rem; font-weight: 700; cursor: pointer;
+      white-space: nowrap;
     }
     .mini-btn.danger { background: var(--rose-soft); border-color: var(--rose); color: var(--rose); }
     .mini-btn.timer-btn { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
@@ -218,11 +234,13 @@
       background: var(--accent); color: var(--accent-text); border: none;
       border-radius: 10px; padding: 9px 14px; font-size: 0.84rem; font-weight: 800;
       cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+      white-space: nowrap;
     }
     .btn-secondary {
       background: var(--surface-2); color: var(--text); border: 1px solid var(--border);
       border-radius: 10px; padding: 8px 12px; font-size: 0.82rem; font-weight: 700;
       cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+      white-space: nowrap;
     }
 
     .img-preview-bar {
@@ -234,8 +252,8 @@
       width: 48px; height: 48px; border-radius: 8px; object-fit: cover; border: 1px solid var(--border);
     }
 
-    .rings-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 9px; }
-    @media (min-width: 560px) { .rings-grid { grid-template-columns: repeat(4, 1fr); } }
+    .rings-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
+    @media (min-width: 560px) { .rings-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 
     .ring-card {
       background: var(--surface-2); border: 1px solid var(--border);
@@ -278,7 +296,7 @@
       background: var(--surface); border-top: 1px solid var(--border);
       padding: 8px 12px; z-index: 35;
     }
-    .bottom-inner { max-width: 780px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .bottom-inner { max-width: 780px; margin: 0 auto; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 
     .toast {
       position: fixed; top: 16px; left: 50%; transform: translateX(-50%) translateY(-20px);
@@ -371,7 +389,7 @@
         <div id="workoutDayNote" class="item-meta"></div>
 
         <div id="codeBox" class="hidden" style="margin-top:10px;">
-          <textarea id="codeInput" style="width:100%;min-height:72px;" placeholder="例如：B1 4*6 15 / B2 4*8 20 / B3 4*10 40"></textarea>
+          <textarea id="codeInput" style="min-height:72px;" placeholder="例如：B1 4*6 15 / B2 4*8 20 / B3 4*10 40"></textarea>
           <div style="display:flex;gap:8px;margin-top:7px;">
             <button class="btn-primary" onclick="parseAndApplyCodes()">套用並自動打勾</button>
             <button class="btn-secondary" onclick="toggleCodeBox()">收合</button>
@@ -420,7 +438,7 @@
         </div>
         <div id="aiPanelBody">
           <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px;">
-            <input id="aiFoodText" type="text" style="flex:1;min-width:200px;" placeholder="輸入餐點描述（如：日式燒肉飯不淋汁＋無糖豆漿）" />
+            <input id="aiFoodText" type="text" style="flex:1;min-width:180px;" placeholder="輸入餐點描述（如：日式燒肉飯不淋汁＋無糖豆漿）" />
             <label class="btn-secondary" style="cursor:pointer;">
               📷 選照片
               <input id="aiFoodFile" type="file" accept="image/*" class="hidden" onchange="onFoodImageSelected(this)" />
@@ -428,7 +446,6 @@
             <button id="btnAnalyzeFood" class="btn-primary" onclick="analyzeFoodWithGemini()">✨ AI 分析</button>
           </div>
 
-          <!-- 附加圖片預覽與刪除區 -->
           <div id="aiImagePreviewBox" class="img-preview-bar hidden">
             <div style="display:flex;align-items:center;gap:10px;min-width:0;">
               <img id="aiImageThumb" class="img-preview-thumb" src="" alt="預覽圖" />
@@ -479,21 +496,21 @@
           <h3 class="card-title">📋 貼上聊天室食物分析結果（一鍵匯入）</h3>
           <span class="item-meta">免 API Key</span>
         </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;">
-          <input id="quickPasteLine" type="text" style="flex:1;min-width:210px;" placeholder="貼上格式如：炙燒鮭魚御飯糰 | 235 | 6 | 39 | 5" />
+        <div class="form-row-btn">
+          <input id="quickPasteLine" type="text" placeholder="貼上格式如：炙燒鮭魚御飯糰 | 235 | 6 | 39 | 5" />
           <button class="btn-primary" onclick="parseQuickPasteMeal()">一鍵加入</button>
         </div>
       </div>
 
       <div class="card">
         <h3 class="card-title" style="margin-bottom:9px;">➕ 手動輸入餐點</h3>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+        <div class="form-grid-2">
           <input id="mealName" type="text" placeholder="餐點名稱" />
           <input id="mealKcal" type="number" placeholder="熱量 kcal" />
           <input id="mealPro" type="number" placeholder="蛋白質 g" />
           <input id="mealCarb" type="number" placeholder="碳水 g" />
         </div>
-        <div style="display:grid;grid-template-columns:1fr auto;gap:8px;">
+        <div class="form-row-btn">
           <input id="mealFat" type="number" placeholder="脂肪 g" />
           <button class="btn-primary" onclick="addCustomMeal()">加入紀錄</button>
         </div>
@@ -515,7 +532,7 @@
           <h2 class="card-title">🎯 體脂 16.8% → 12.0% 腹肌進度追蹤</h2>
           <span id="xpHeaderBadge" class="stage-badge">Lv.3 扣球重砲手 · 361 XP</span>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:center;margin-bottom:10px;">
+        <div class="metrics-grid">
           <div>
             <div class="item-meta">目前體重 (kg)</div>
             <input id="curWeightInput" type="number" step="0.1" value="69.4" />
@@ -524,8 +541,8 @@
             <div class="item-meta">目前體脂率 (%)</div>
             <input id="curBfInput" type="number" step="0.1" value="16.8" />
           </div>
-          <button class="btn-primary" style="margin-top:16px;" onclick="updateBodyMetrics()">更新</button>
         </div>
+        <button class="btn-primary" style="width:100%;margin-bottom:10px;" onclick="updateBodyMetrics()">更新體重與體脂率</button>
         <div class="prog-track"><div id="bfProgFill" class="prog-fill" style="width:0%;"></div></div>
         <div id="bfProgText" class="item-meta" style="margin-top:6px;"></div>
       </div>
@@ -544,14 +561,14 @@
       <div class="card">
         <h2 class="card-title" style="margin-bottom:8px;">🔑 獨立食物分析 Gemini API Key</h2>
         <div class="item-meta" style="margin-bottom:8px;">
-          若要讓網頁直接呼叫 Gemini 分析餐點，可在此貼上 Key 並按「儲存 Key」。
+          貼上你的 Google AI Studio API Key（AIzaSy...），按「測試連線」會自動查詢你這組帳號實際可用的最新模型。
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;">
-          <input id="apiKeyInput" type="password" style="flex:1;min-width:200px;" placeholder="貼上 AIzaSy... 開頭的 Gemini API Key" />
+          <input id="apiKeyInput" type="password" style="flex:1;min-width:180px;" placeholder="貼上 AIzaSy... 開頭的 Gemini API Key" />
           <button class="btn-primary" onclick="saveApiKey()">儲存 Key</button>
           <button class="btn-secondary" onclick="testGeminiKey()">測試連線</button>
         </div>
-        <div id="keyTestResult" class="item-meta" style="margin-top:6px;"></div>
+        <div id="keyTestResult" class="item-meta" style="margin-top:8px;word-break:break-word;"></div>
       </div>
 
       <div class="card">
@@ -559,8 +576,8 @@
         <div class="item-meta" style="margin-bottom:8px;">
           貼上你的 Google Apps Script 網頁應用程式網址（Web App URL），每次儲存時會自動寫入 Google 試算表。
         </div>
-        <div style="display:flex;gap:8px;margin-bottom:8px;">
-          <input id="gasUrlInput" type="text" style="flex:1;" placeholder="https://script.google.com/macros/s/...../exec" />
+        <div class="form-row-btn" style="margin-bottom:8px;">
+          <input id="gasUrlInput" type="text" placeholder="https://script.google.com/macros/s/...../exec" />
           <button class="btn-primary" onclick="saveGasUrl()">儲存網址</button>
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;">
@@ -588,7 +605,7 @@ function doGet(e) {
 
       <div class="card">
         <h3 class="card-title" style="margin-bottom:8px;">💾 完整存檔碼備份與還原</h3>
-        <textarea id="backupCodeBox" style="width:100%;min-height:74px;" placeholder="點「匯出存檔碼」可複製備份；或在此貼上舊存檔碼後按「還原存檔」。"></textarea>
+        <textarea id="backupCodeBox" style="min-height:74px;" placeholder="點「匯出存檔碼」可複製備份；或在此貼上舊存檔碼後按「還原存檔」。"></textarea>
         <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;">
           <button class="btn-secondary" onclick="exportBackupCode()">📤 匯出並複製存檔碼</button>
           <button class="btn-primary" onclick="importBackupCode()">📥 貼上還原存檔</button>
@@ -619,7 +636,7 @@ function doGet(e) {
   </div>
 
   <script>
-    const STORAGE_KEY = "strong_journal_with_ai_v10";
+    const STORAGE_KEY = "strong_journal_complete_v13";
 
     const DAY_META = {
       mon: { label: "週一", title: "週一｜晚上排球實戰", note: "白天恢復為主，賽前 15 分鐘做好腳踝與髖關節動態熱身。", type: "ball", kcal: 2400, pro: 150, carb: 250, fat: 65 },
@@ -795,7 +812,7 @@ function doGet(e) {
         c_chest: true, c_lat: true, c_arm: true
       };
 
-      const state = {
+      const st = {
         activeTab: "workout",
         selectedDate: today,
         lightMode: false,
@@ -840,8 +857,8 @@ function doGet(e) {
           }
         }
       };
-      ensureDateRecord(state, today, dayKey);
-      return state;
+      ensureDateRecord(st, today, dayKey);
+      return st;
     }
 
     function ensureDateRecord(st, dateStr, forcedDayKey) {
@@ -863,7 +880,12 @@ function doGet(e) {
 
     function loadState() {
       try {
-        const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem("strong_journal_no_api_v9") || localStorage.getItem("strong_journal_black_yellow_v8");
+        const raw =
+          localStorage.getItem(STORAGE_KEY) ||
+          localStorage.getItem("strong_journal_complete_v12") ||
+          localStorage.getItem("strong_journal_layout_fix_v11") ||
+          localStorage.getItem("strong_journal_with_ai_v10") ||
+          localStorage.getItem("strong_journal_black_yellow_v8");
         if (!raw) return createDefaultState();
         const parsed = Object.assign(createDefaultState(), JSON.parse(raw));
         ensureDateRecord(parsed, parsed.selectedDate);
@@ -1186,8 +1208,8 @@ function doGet(e) {
           let w = img.width;
           let h = img.height;
           if (w > maxDim || h > maxDim) {
-            if (w >= h) { h = Math.round(h * maxDim / w); w = maxDim; }
-            else { w = Math.round(w * maxDim / h); h = maxDim; }
+            if (w >= h) { h = Math.round((h * maxDim) / w); w = maxDim; }
+            else { w = Math.round((w * maxDim) / h); h = maxDim; }
           }
           const canvas = document.createElement("canvas");
           canvas.width = w;
@@ -1226,11 +1248,58 @@ function doGet(e) {
       showToast("已移除附加照片");
     }
 
-    async function callGeminiModels(key, parts) {
-      const models = ["gemini-3.8-flash", "gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"];
-      let lastErr = "未知錯誤";
-      for (let i = 0; i < models.length; i++) {
-        const url = "https://generativelanguage.googleapis.com/v1beta/models/" + models[i] + ":generateContent?key=" + encodeURIComponent(key);
+    function cleanApiKey(raw) {
+      return String(raw || "").replace(/[\s\u200B-\u200D\uFEFF]/g, "").trim();
+    }
+
+    async function getAvailableGeminiModels(key) {
+      const candidates = [];
+      const blockedWords = ["1.5", "2.0", "tts", "audio", "image", "embedding", "aqa", "imagen", "veo"];
+      try {
+        const resp = await fetch("https://generativelanguage.googleapis.com/v1beta/models?key=" + encodeURIComponent(key));
+        const data = await resp.json();
+        if (!resp.ok) {
+          const msg = (data && data.error && data.error.message) ? data.error.message : ("HTTP " + resp.status);
+          throw new Error(msg);
+        }
+        if (data && Array.isArray(data.models)) {
+          const flashList = [];
+          const otherList = [];
+          data.models.forEach(function(m) {
+            const methods = m.supportedGenerationMethods || [];
+            const rawName = m.name || "";
+            const low = rawName.toLowerCase();
+            const isBlocked = blockedWords.some(function(w) { return low.indexOf(w) !== -1; });
+            if (methods.indexOf("generateContent") !== -1 && !isBlocked) {
+              if (low.indexOf("flash") !== -1) flashList.push(rawName);
+              else otherList.push(rawName);
+            }
+          });
+          flashList.reverse().forEach(function(n) { if (candidates.indexOf(n) === -1) candidates.push(n); });
+          otherList.reverse().forEach(function(n) { if (candidates.indexOf(n) === -1) candidates.push(n); });
+        }
+      } catch (e) {
+        if (e && e.message) throw e;
+      }
+
+      [
+        "models/gemini-2.5-flash",
+        "models/gemini-2.5-flash-lite",
+        "models/gemini-3-flash-preview",
+        "models/gemini-3.8-flash"
+      ].forEach(function(fb) {
+        if (candidates.indexOf(fb) === -1) candidates.push(fb);
+      });
+      return candidates;
+    }
+
+    async function callGeminiModels(rawKey, parts) {
+      const key = cleanApiKey(rawKey);
+      const candidates = await getAvailableGeminiModels(key);
+      const errors = [];
+      for (let i = 0; i < candidates.length; i++) {
+        const modelPath = candidates[i];
+        const url = "https://generativelanguage.googleapis.com/v1beta/" + modelPath + ":generateContent?key=" + encodeURIComponent(key);
         const resp = await fetch(url, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -1238,35 +1307,46 @@ function doGet(e) {
         });
         const data = await resp.json();
         if (resp.ok && data && data.candidates && data.candidates[0]) {
-          return (data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0] && data.candidates[0].content.parts[0].text) || "";
+          const outParts = (data.candidates[0].content && data.candidates[0].content.parts) || [];
+          const text = outParts.map(function(p) { return p.text || ""; }).join("\n").trim();
+          return {
+            model: modelPath.replace("models/", ""),
+            text: text
+          };
         }
-        lastErr = (data && data.error && data.error.message) ? data.error.message : ("HTTP " + resp.status);
+        const msg = (data && data.error && data.error.message) ? data.error.message : ("HTTP " + resp.status);
+        errors.push(modelPath.replace("models/", "") + ": " + msg);
+        if (msg.toLowerCase().indexOf("api key not valid") !== -1) break;
       }
-      throw new Error(lastErr);
+      throw new Error(errors.slice(0, 2).join(" ｜ ") || "查無可用模型");
     }
 
     async function testGeminiKey() {
-      const key = (document.getElementById("apiKeyInput").value || state.apiKey || "").trim();
+      const inputEl = document.getElementById("apiKeyInput");
+      const key = cleanApiKey(inputEl.value || state.apiKey);
       if (!key) { showToast("請先貼上 API Key"); return; }
+      inputEl.value = key;
       state.apiKey = key;
       saveState();
+
       const box = document.getElementById("keyTestResult");
       box.style.color = "var(--text-muted)";
-      box.textContent = "連線測試中...";
+      box.textContent = "正在向 Google 查詢你的金鑰可用模型並測試連線...";
       try {
-        const reply = await callGeminiModels(key, [{ text: "請只回覆 OK" }]);
+        const res = await callGeminiModels(key, [{ text: "請只回覆 OK" }]);
         box.style.color = "var(--green)";
-        box.textContent = "✅ 連線成功！回應：" + reply.trim();
+        box.textContent = "✅ 連線成功！實際配對模型：" + res.model + "｜回應：" + res.text;
+        showToast("API 連線測試成功！");
       } catch (e) {
         box.style.color = "var(--rose)";
-        box.textContent = "❌ 連線失敗：" + e.message;
+        box.textContent = "❌ 連線失敗：" + (e && e.message ? e.message : "未知錯誤");
       }
     }
 
     async function analyzeFoodWithGemini() {
-      const key = (state.apiKey || "").trim();
+      const key = cleanApiKey(state.apiKey);
       if (!key) {
-        showToast("尚未設定 API Key，可先用下方快選或快貼匯入");
+        showToast("請先到「☁️ 雲端設定」貼上並儲存 API Key");
         return;
       }
       const desc = (document.getElementById("aiFoodText").value || "").trim();
@@ -1287,9 +1367,10 @@ function doGet(e) {
       }
 
       try {
-        const text = await callGeminiModels(key, parts);
-        const jsonMatch = text.match(/\{[\s\S]*\}/);
-        if (!jsonMatch) throw new Error("AI 回傳格式無法解析");
+        const res = await callGeminiModels(key, parts);
+        const cleaned = res.text.replace(/```json/gi, "").replace(/```/g, "").trim();
+        const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) throw new Error("AI 回傳格式無法解析：" + cleaned.slice(0, 80));
         const parsed = JSON.parse(jsonMatch[0]);
 
         const rec = getCurrentRecord();
@@ -1306,7 +1387,7 @@ function doGet(e) {
 
         box.className = "banner ok";
         box.classList.remove("hidden");
-        box.innerHTML = "<div><strong>已自動加入：" + parsed.name + "</strong>（" + parsed.kcal + " kcal｜蛋白 " + parsed.pro + "g｜碳水 " + parsed.carb + "g｜脂肪 " + parsed.fat + "g）<br/><span>💡 " + (parsed.tip || "") + "</span></div>";
+        box.innerHTML = "<div><strong>已自動加入：" + parsed.name + "</strong>（" + parsed.kcal + " kcal｜蛋白 " + parsed.pro + "g｜碳水 " + parsed.carb + "g｜脂肪 " + parsed.fat + "g｜模型：" + res.model + "）<br/><span>💡 " + (parsed.tip || "") + "</span></div>";
 
         document.getElementById("aiFoodText").value = "";
         clearFoodImage();
@@ -1315,14 +1396,13 @@ function doGet(e) {
       } catch (err) {
         box.className = "banner warn";
         box.classList.remove("hidden");
-        box.innerHTML = "<div><strong>AI 分析失敗：</strong>" + (err.message || "API 連線異常") + "<br/><span>可直接點下方「外食快選」或「貼上聊天室食物分析結果」秒加。</span></div>";
+        box.innerHTML = "<div><strong>AI 分析失敗：</strong>" + (err && err.message ? err.message : "API 連線異常") + "<br/><span>可直接點下方「外食快選」或「貼上聊天室食物分析結果」秒加。</span></div>";
       } finally {
         btn.disabled = false;
         btn.textContent = "✨ AI 分析";
       }
     }
 
-    /* ===== 飲食記錄（快選＋快貼＋手動） ===== */
     function renderQuickChips() {
       document.getElementById("quickFoodChips").innerHTML = QUICK_FOODS.map(function(f, idx) {
         return '<button class="food-chip" onclick="addQuickFood(' + idx + ')">+ ' + f.name + '（' + f.kcal + 'kcal / ' + f.pro + 'g蛋）</button>';
@@ -1489,7 +1569,9 @@ function doGet(e) {
     }
 
     function saveApiKey() {
-      state.apiKey = (document.getElementById("apiKeyInput").value || "").trim();
+      const key = cleanApiKey(document.getElementById("apiKeyInput").value);
+      document.getElementById("apiKeyInput").value = key;
+      state.apiKey = key;
       saveState();
       showToast("已儲存獨立 Gemini API Key");
     }
