@@ -451,7 +451,7 @@
               <img id="aiImageThumb" class="img-preview-thumb" src="" alt="預覽圖" />
               <div style="min-width:0;">
                 <div id="aiImagePreviewName" style="font-size:0.8rem;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></div>
-                <div class="item-meta">已自動壓縮最佳化，可直接點 AI 分析</div>
+                <div class="item-meta">已輕量化最佳化，可直接點 AI 分析</div>
               </div>
             </div>
             <button type="button" class="mini-btn danger" onclick="clearFoodImage()">❌ 移除照片</button>
@@ -561,7 +561,7 @@
       <div class="card">
         <h2 class="card-title" style="margin-bottom:8px;">🔑 獨立食物分析 Gemini API Key</h2>
         <div class="item-meta" style="margin-bottom:8px;">
-          貼上你的 Google AI Studio API Key（AIzaSy...），按「測試連線」會自動查詢你這組帳號實際可用的最新模型。
+          貼上你的 Google AI Studio API Key（AIzaSy...），按「測試連線」會自動驗證可用模型並診斷 iPhone Safari 連線狀態。
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;">
           <input id="apiKeyInput" type="password" style="flex:1;min-width:180px;" placeholder="貼上 AIzaSy... 開頭的 Gemini API Key" />
@@ -636,7 +636,7 @@ function doGet(e) {
   </div>
 
   <script>
-    const STORAGE_KEY = "strong_journal_complete_v13";
+    const STORAGE_KEY = "strong_journal_complete_v14";
 
     const DAY_META = {
       mon: { label: "週一", title: "週一｜晚上排球實戰", note: "白天恢復為主，賽前 15 分鐘做好腳踝與髖關節動態熱身。", type: "ball", kcal: 2400, pro: 150, carb: 250, fat: 65 },
@@ -882,6 +882,7 @@ function doGet(e) {
       try {
         const raw =
           localStorage.getItem(STORAGE_KEY) ||
+          localStorage.getItem("strong_journal_complete_v13") ||
           localStorage.getItem("strong_journal_complete_v12") ||
           localStorage.getItem("strong_journal_layout_fix_v11") ||
           localStorage.getItem("strong_journal_with_ai_v10") ||
@@ -1194,7 +1195,7 @@ function doGet(e) {
         String(Math.floor(restRemain / 60)).padStart(2, "0") + ":" + String(restRemain % 60).padStart(2, "0");
     }
 
-    /* ===== 食物圖片處理（自動壓縮＋預覽＋刪除） ===== */
+    /* ===== 食物圖片處理（640px 輕量化壓縮＋預覽＋刪除） ===== */
     let selectedImageBase64 = null;
     let selectedImageMime = "image/jpeg";
 
@@ -1204,7 +1205,7 @@ function doGet(e) {
         const dataUrl = String(ev.target.result || "");
         const img = new Image();
         img.onload = function() {
-          const maxDim = 1024;
+          const maxDim = 640;
           let w = img.width;
           let h = img.height;
           if (w > maxDim || h > maxDim) {
@@ -1216,7 +1217,7 @@ function doGet(e) {
           canvas.height = h;
           const ctx = canvas.getContext("2d");
           ctx.drawImage(img, 0, 0, w, h);
-          callback(canvas.toDataURL("image/jpeg", 0.8));
+          callback(canvas.toDataURL("image/jpeg", 0.72));
         };
         img.onerror = function() { callback(dataUrl); };
         img.src = dataUrl;
@@ -1233,7 +1234,7 @@ function doGet(e) {
         document.getElementById("aiImageThumb").src = compressedDataUrl;
         document.getElementById("aiImagePreviewName").textContent = file.name;
         document.getElementById("aiImagePreviewBox").classList.remove("hidden");
-        showToast("已附加並壓縮餐點照片");
+        showToast("已附加並輕量化餐點照片");
       });
     }
 
@@ -1252,61 +1253,58 @@ function doGet(e) {
       return String(raw || "").replace(/[\s\u200B-\u200D\uFEFF]/g, "").trim();
     }
 
-    async function getAvailableGeminiModels(key) {
-      const candidates = [];
-      const blockedWords = ["1.5", "2.0", "tts", "audio", "image", "embedding", "aqa", "imagen", "veo"];
-      try {
-        const resp = await fetch("https://generativelanguage.googleapis.com/v1beta/models?key=" + encodeURIComponent(key));
-        const data = await resp.json();
-        if (!resp.ok) {
-          const msg = (data && data.error && data.error.message) ? data.error.message : ("HTTP " + resp.status);
-          throw new Error(msg);
-        }
-        if (data && Array.isArray(data.models)) {
-          const flashList = [];
-          const otherList = [];
-          data.models.forEach(function(m) {
-            const methods = m.supportedGenerationMethods || [];
-            const rawName = m.name || "";
-            const low = rawName.toLowerCase();
-            const isBlocked = blockedWords.some(function(w) { return low.indexOf(w) !== -1; });
-            if (methods.indexOf("generateContent") !== -1 && !isBlocked) {
-              if (low.indexOf("flash") !== -1) flashList.push(rawName);
-              else otherList.push(rawName);
-            }
-          });
-          flashList.reverse().forEach(function(n) { if (candidates.indexOf(n) === -1) candidates.push(n); });
-          otherList.reverse().forEach(function(n) { if (candidates.indexOf(n) === -1) candidates.push(n); });
-        }
-      } catch (e) {
-        if (e && e.message) throw e;
-      }
-
-      [
-        "models/gemini-2.5-flash",
-        "models/gemini-2.5-flash-lite",
-        "models/gemini-3-flash-preview",
-        "models/gemini-3.8-flash"
-      ].forEach(function(fb) {
-        if (candidates.indexOf(fb) === -1) candidates.push(fb);
+    function postJsonWithFallback(url, payloadObj) {
+      const bodyStr = JSON.stringify(payloadObj);
+      return fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: bodyStr
+      }).then(function(resp) {
+        return resp.text().then(function(txt) {
+          let json = null;
+          try { json = JSON.parse(txt); } catch (e) {}
+          return { ok: resp.ok, status: resp.status, data: json, raw: txt };
+        });
+      }).catch(function() {
+        return new Promise(function(resolve, reject) {
+          try {
+            const xhr = new XMLHttpRequest();
+            xhr.open("POST", url, true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.timeout = 25000;
+            xhr.onload = function() {
+              let json = null;
+              try { json = JSON.parse(xhr.responseText); } catch (e) {}
+              resolve({ ok: xhr.status >= 200 && xhr.status < 300, status: xhr.status, data: json, raw: xhr.responseText });
+            };
+            xhr.onerror = function() {
+              reject(new Error("Safari 無法連線至 Google API（請確認網路正常、未開啟擋廣告/VPN 攔截，或先到雲端設定測試連線）"));
+            };
+            xhr.ontimeout = function() {
+              reject(new Error("連線逾時（25秒），請切換較穩定的網路後再試"));
+            };
+            xhr.send(bodyStr);
+          } catch (err) {
+            reject(new Error("瀏覽器網路請求被阻擋：" + (err && err.message ? err.message : "Load failed")));
+          }
+        });
       });
-      return candidates;
     }
 
     async function callGeminiModels(rawKey, parts) {
       const key = cleanApiKey(rawKey);
-      const candidates = await getAvailableGeminiModels(key);
+      const candidates = [
+        "models/gemini-2.5-flash",
+        "models/gemini-2.5-flash-lite",
+        "models/gemini-3-flash-preview"
+      ];
       const errors = [];
       for (let i = 0; i < candidates.length; i++) {
         const modelPath = candidates[i];
         const url = "https://generativelanguage.googleapis.com/v1beta/" + modelPath + ":generateContent?key=" + encodeURIComponent(key);
-        const resp = await fetch(url, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ contents: [{ parts: parts }] })
-        });
-        const data = await resp.json();
-        if (resp.ok && data && data.candidates && data.candidates[0]) {
+        const res = await postJsonWithFallback(url, { contents: [{ parts: parts }] });
+        const data = res.data;
+        if (res.ok && data && data.candidates && data.candidates[0]) {
           const outParts = (data.candidates[0].content && data.candidates[0].content.parts) || [];
           const text = outParts.map(function(p) { return p.text || ""; }).join("\n").trim();
           return {
@@ -1314,7 +1312,7 @@ function doGet(e) {
             text: text
           };
         }
-        const msg = (data && data.error && data.error.message) ? data.error.message : ("HTTP " + resp.status);
+        const msg = (data && data.error && data.error.message) ? data.error.message : ("HTTP " + res.status);
         errors.push(modelPath.replace("models/", "") + ": " + msg);
         if (msg.toLowerCase().indexOf("api key not valid") !== -1) break;
       }
@@ -1331,7 +1329,7 @@ function doGet(e) {
 
       const box = document.getElementById("keyTestResult");
       box.style.color = "var(--text-muted)";
-      box.textContent = "正在向 Google 查詢你的金鑰可用模型並測試連線...";
+      box.textContent = "正在測試連線至 Google Gemini API...";
       try {
         const res = await callGeminiModels(key, [{ text: "請只回覆 OK" }]);
         box.style.color = "var(--green)";
